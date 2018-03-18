@@ -1,0 +1,57 @@
+﻿Build started 2018/3/18 16:06:59.
+     1>Project "D:\DEV\VC2010\sport\sport\sport.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\sport.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         d:\Application\VS2010\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yc"StdAfx.h" /Fp"Debug\sport.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt stdafx.cpp
+         stdafx.cpp
+         d:\Application\VS2010\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\sport.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt example.cpp inter_eve.cpp inter_other.cpp inter_per.cpp inter_sys.cpp main.cpp menu.cpp menu_admin.cpp menu_tourist.cpp menu_user.cpp operation.cpp
+         operation.cpp
+     1>d:\dev\vc2010\sport\sport\operation.cpp(14): warning C4996: 'getch': The POSIX name for this item is deprecated. Instead, use the ISO C++ conformant name: _getch. See online help for details.
+                 d:\application\vs2010\vc\include\conio.h(128) : see declaration of 'getch'
+         menu_user.cpp
+         menu_tourist.cpp
+         menu_admin.cpp
+         menu.cpp
+     1>d:\dev\vc2010\sport\sport\menu.cpp(261): warning C4244: 'initializing' : conversion from 'long' to 'char', possible loss of data
+         main.cpp
+         inter_sys.cpp
+         inter_per.cpp
+     1>d:\dev\vc2010\sport\sport\inter_per.cpp(19): warning C4244: '=' : conversion from 'time_t' to 'long', possible loss of data
+         inter_other.cpp
+         inter_eve.cpp
+     1>d:\dev\vc2010\sport\sport\inter_eve.cpp(84): warning C4101: 'msg' : unreferenced local variable
+     1>d:\dev\vc2010\sport\sport\inter_eve.cpp(137): warning C4101: 'msg' : unreferenced local variable
+     1>d:\dev\vc2010\sport\sport\inter_eve.cpp(184): warning C4101: 'msg' : unreferenced local variable
+         example.cpp
+         Generating Code...
+       ManifestResourceCompile:
+         All outputs are up-to-date.
+       Link:
+         d:\Application\VS2010\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"D:\DEV\VC2010\sport\Debug\sport.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\sport.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"D:\DEV\VC2010\sport\Debug\sport.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\DEV\VC2010\sport\Debug\sport.lib" /MACHINE:X86 Debug\sport.exe.embed.manifest.res
+         Debug\example.obj
+         Debug\inter_eve.obj
+         Debug\inter_other.obj
+         Debug\inter_per.obj
+         Debug\inter_sys.obj
+         Debug\main.obj
+         Debug\menu.obj
+         Debug\menu_admin.obj
+         Debug\menu_tourist.obj
+         Debug\menu_user.obj
+         Debug\operation.obj
+         Debug\stdafx.obj
+       Manifest:
+         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\sport.exe.embed.manifest" /manifest Debug\sport.exe.intermediate.manifest
+         All outputs are up-to-date.
+       LinkEmbedManifest:
+         All outputs are up-to-date.
+         sport.vcxproj -> D:\DEV\VC2010\sport\Debug\sport.exe
+       FinalizeBuildStatus:
+         Deleting file "Debug\sport.unsuccessfulbuild".
+         Touching "Debug\sport.lastbuildstate".
+     1>Done Building Project "D:\DEV\VC2010\sport\sport\sport.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:07.46
