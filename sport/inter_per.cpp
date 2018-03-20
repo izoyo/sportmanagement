@@ -50,14 +50,20 @@ PerInfo Person_getinfo(long id){
 	PerInfo msg;
 	msg.id=0;
 	fp = fopen("data\\perinfo.txt", "r");
+	//printf("-1-");
 	if(fp==NULL) return msg;
     int i=sys_info.peo,o;
+	//printf("-2-");
 	if(i==0) return msg;
+	//printf("-%d-",i*sizeof(PerInfo));
 	PerInfo* evo;
 	evo=(PerInfo *) malloc(i*sizeof(PerInfo));
+	//printf("-4-");
     fread(evo, sizeof(PerInfo), i, fp);
+	//printf("-5-");
     fclose(fp);
-    for(o = 0; o < sys_info.peo; o++){
+	//printf("-6-");
+    for(o = 0; o < i; o++){
 		//printf("%d,%s",o,evo[o].name);
 		if(evo[o].id==id){
 			msg=evo[o];
@@ -65,6 +71,7 @@ PerInfo Person_getinfo(long id){
 		}
 	}
 	free(evo);
+	//printf("-%ld-",msg.id);
 	return msg;//如果放回的msg.id为0则不存在该学生
 }
 int Person_had(long id){
@@ -109,7 +116,7 @@ int Person_delete(long id){
 	return 0;
 }
 int Person_change(PerInfo msg,int type){
-	if(Person_had(msg.id)==0)return 8;//不存在用户
+	if(Person_had(msg.id)==0)return 7;//不存在用户
 	int i,o;
 	switch(type){
 		case 1:	
@@ -135,7 +142,6 @@ int Person_change(PerInfo msg,int type){
 			return 8;
 	}
 	FILE * fp;
-	msg.id=0;
 	fp = fopen("data\\perinfo.txt", "r");
 	if(fp==NULL) return 9;
     i=sys_info.peo;
@@ -144,6 +150,7 @@ int Person_change(PerInfo msg,int type){
     fclose(fp);
     for(o = 0; o < i; o++){
 		if(evo[o].id==msg.id){
+			puts(evo[o].name);
 			switch(type){
 				case 1:	
 					strcpy(evo[o].name,msg.name);
@@ -159,8 +166,9 @@ int Person_change(PerInfo msg,int type){
 					break;
 				case 6:
 					strcpy(evo[o].password,msg.password);
+					puts(evo[o].password);
 					break;
-				}
+			}
 			break;
 		}
 	}
@@ -172,15 +180,25 @@ int Person_change(PerInfo msg,int type){
 }
 int Person_create(PerInfo msg){//注意注册ID不要超过21亿
 	//开始检查录入
-	int i;
+	int i,o=1;
 	i=Char_isok(msg.name);
 	if(i)return 1;//检查名字
 	if(msg.id<=10000) return 2;//检查ID
 	if(msg.gender<0 || msg.gender>1) return 3;//检查性别
 	i=Char_isok(msg.organization);
 	if(i)return 4;//学院书院
+	for(i=0;i<20;i++){
+		if(strcmp(sys_info.yuan[i],msg.organization)==0)
+			o=0;
+	}
+	if(o)return 4;//学院书院
 	i=Char_isok(msg.faculty);
 	if(i)return 5;//系
+	for(i=0;i<20;i++){
+		if(strcmp(sys_info.xi[i],msg.faculty)==0)
+			o=0;
+	}
+	if(o)return 5;
 	i=Char_isok(msg.password);
 	if(i)return 6;//密码
 	//检查重复
@@ -212,7 +230,17 @@ int Person_create(PerInfo msg){//注意注册ID不要超过21亿
 void Person_mynotice(){//获取成员通知例子，请注意有没有满20条
 	Notice msn[20];
 	Person_getnotice(10000,msn);
-	printf("%d-%s-%d\n",msn[0].id,msn[0].msg,msn[0].time);
+	for(int i=0;i<20;i++){
+		if(msn[i].time>0){
+			time_t  tt = (time_t)msn[i].time;   //假定时间
+			char now[64];
+			struct tm *ttime;
+			ttime = localtime(&tt);
+			strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
+			printf("\t\t\t\t%d年%d月%d日  %02d:%02d —— %s\n",ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min,msn[i].msg);
+		}
+	}
+	
 }
 void Person_list(){//获取所有成员例子
 	if(sys_info.peo==0) return;

@@ -79,7 +79,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="example.cpp" />
     <ClCompile Include="inter_eve.cpp" />
     <ClCompile Include="inter_other.cpp" />
     <ClCompile Include="inter_per.cpp" />

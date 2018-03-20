@@ -11,3 +11,29 @@ int Char_isok(char* msg){
 	}
 	return 0;
 }
+
+int cmp(const void*a,const void*b){//从小到大  qsort(evo,3,sizeof(Participant),cmp);
+	struct Participant *c = (Participant *)a;
+	struct Participant *d = (Participant *)b;
+	if(c->score != d->score) return c->score - d->score;
+	else return d->score - c->score;
+}
+
+void  scoreToChar(long score, char * msg)//把比赛的时间成绩转化为时间格式字符串（如12'12''12)
+{
+	char t[20];
+
+	itoa(score / 60000, t, 10);
+	strcpy(msg, t);
+	strcat(msg, "'");
+
+	itoa((score % 60000) / 1000, t, 10);
+	strcat(msg, t);
+	strcat(msg, "''");
+	if (score % 1000 > 100)
+		itoa((score % 1000) / 10, t, 10);
+	else if (score % 1000 < 10)
+		strcat(msg, "0");
+	itoa(score % 1000, t, 10);
+	strcat(msg, t);
+}

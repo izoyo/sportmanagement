@@ -9,6 +9,7 @@
 	int hasFinals;//有无决赛 0无 1有
 	int finNum;//有决赛时决赛人数
 	long time;//比赛时间戳，秒
+	long etime
 	Participant prePerson[100] ;//预赛人数最多100
 	Participant finPerson[20] ;//决赛人数最多20
 */
@@ -147,6 +148,7 @@ int Event_dec(long eveid,long peoid,int type){
 				for(o = 0; o < 100; o++){//检查有没有参加
 					if(evo[p].prePerson[o].id==peoid){
 						evo[p].prePerson[o].id=0;//删除参赛
+						evo[p].prePerson[o].score=0;
 						fp = fopen("data\\eveinfo.txt", "w");
 						evo[p].maxpeople--;
 						fwrite(evo, sizeof(SportsEvent), i, fp);
@@ -161,6 +163,7 @@ int Event_dec(long eveid,long peoid,int type){
 				for(o = 0; o < 20; o++){
 					if(evo[p].finPerson[o].id==peoid){
 						evo[p].finPerson[o].id=0;
+						evo[p].prePerson[o].score=0;
 						evo[p].finNum--;
 						fp = fopen("data\\eveinfo.txt", "w");
 						fwrite(evo, sizeof(SportsEvent), i, fp);
@@ -228,10 +231,10 @@ int Event_change(SportsEvent msg,int type){
 			i=Char_isok(msg.name);
 			if(i)return 1;
 			i=Event_hadname(msg.name);
-			if(i==0)return 1;
+			if(i)return 1;
 			break;
 		case 3:
-			if(msg.type<0 || msg.type>1) return 3;
+			if(msg.type!=10 && msg.type!=11 && msg.type!=20 && msg.type!=21) return 3;
 			break;
 		case 4:
 			i=Char_isok(msg.place);
@@ -252,11 +255,13 @@ int Event_change(SportsEvent msg,int type){
 		case 9:
 			if(msg.time<0 )return 9;
 			break;
+		case 10:
+			if(msg.etime<0 )return 9;
+			break;
 		default:
 			return 10;
 	}
 	FILE * fp;
-	msg.id=0;
 	fp = fopen("data\\eveinfo.txt", "r");
 	if(fp==NULL) return 9;
     i=sys_info.eve;
@@ -289,6 +294,9 @@ int Event_change(SportsEvent msg,int type){
 					break;
 				case 9:
 					evo[o].time=msg.time;
+					break;
+				case 10:
+					evo[o].etime=msg.etime;
 					break;
 				}
 			break;
@@ -339,7 +347,7 @@ int Event_create(SportsEvent msg){
 	if(i)return 1;//检查名字
 	i=Event_hadname(msg.name);
 	if(i)return 1;
-	if(msg.type<0 || msg.type>1) return 3;//检查田径
+	if(msg.type!=10 && msg.type!=11 && msg.type!=20 && msg.type!=21) return 3;//检查田径
 	i=Char_isok(msg.place);
 	if(i)return 4;//检查场地
 	if(msg.timecost<0 ) return 5;//检查耗时
@@ -347,9 +355,11 @@ int Event_create(SportsEvent msg){
 	if(sys_info.eve>8888)return 10;//太多项目
 	i=rand()%(9999-1000+1)+1000;
 	while(Event_had(i))	i=rand()%(9999-1000+1)+1000;
-	msg.time=0;
+	msg.time=msg.etime=msg.maxpeople=msg.finNum=0;
 	//检查完毕，进行录入
 	msg.id=i;
+	for(i=0;i<100;i++)msg.prePerson[i].id=msg.prePerson[i].score=0;
+	for(i=0;i<20;i++)msg.finPerson[i].id=msg.finPerson[i].score=0;
 	FILE *fp;
 	SportsEvent *evo;
 	fp = fopen("data\\eveinfo.txt", "r+");
@@ -372,6 +382,7 @@ int Event_create(SportsEvent msg){
 	return msg.id;
 }
 
+
 void Event_list(){//获取所有成员例子
 	if(sys_info.eve==0) return;
 	SportsEvent* evo=(SportsEvent *) malloc((sys_info.eve)*sizeof(SportsEvent));
@@ -381,3 +392,4 @@ void Event_list(){//获取所有成员例子
 	}
 	free(evo);
 }
+

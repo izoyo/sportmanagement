@@ -15,13 +15,13 @@
 #include <string.h>
 #include <time.h>
 #include <Windows.h>
-
+#include <direct.h> 
 typedef struct SysInfo{
 	int peo;//ÈËÊı
 	int eve;//ÏîÄ¿Êı
 	int not;//Í¨ÖªÊı
 	char password[20];
-	int canjoin;//ÊÇ·ñ¿ª·Å±¨Ãû
+	int canjoin;//ÊÇ·ñ¿ª·Å±¨Ãû 1Îª¿ÉÒÔ±¨Ãû£¬Ä¬ÈÏ1
 	int numyuan;//ÔºÊı
 	int numxi;//ÏµÊı
 	char yuan[20][20];//20¸öÔºÊı×é
@@ -48,16 +48,24 @@ typedef struct Participant{
 	long score;
 }Participant;//²ÎÈüÕßĞÅÏ¢
 
+typedef struct joinevent{
+	char evename[20];//²ÎÈüÏîÄ¿
+	int joinnum;//²ÎÈüÈËÊı
+	int joinenum;//¾öÈüÈËÊı
+	int score;//µÃ·Ö
+}joinevent;
+
 typedef struct SportsEvent{
 	char name[20];
 	long id;//±àºÅ
-	int type;//0Ìï¡¢1¾¶
+	int type;//10ÄĞÌï¡¢11ÄĞ¾¶¡¢20Å®Ìï¡¢21Å®¾¶
 	char place[20];//³¡µØ
 	int timecost;//ÓÃÊ±£¬·ÖÖÓ
 	int maxpeople;//ÉÏÏŞÈËÊı
 	int hasFinals;//ÓĞÎŞ¾öÈü 0ÎŞ 1ÓĞ
 	int finNum;//ÓĞ¾öÈüÊ±¾öÈüÈËÊı
 	long time;//±ÈÈüÊ±¼ä´Á£¬Ãë
+	long etime;//¾öÈüÊ±¼ä
 	Participant prePerson[100] ;//Ô¤ÈüÈËÊı×î¶à100
 	Participant finPerson[20] ;//¾öÈüÈËÊı×î¶à20
 }SportsEvent;//±ÈÈüÏîÄ¿ĞÅÏ¢
@@ -105,5 +113,16 @@ extern int Event_inc(long eveid, long period, int type);	//Ôö¼ÓÏîÄ¿µÄÔË¶¯Ô±£¨ÏîÄ
 extern int Event_dec(long eveid, long period, int type);	// É¾³ıÏîÄ¿µÄÔË¶¯Ô±£¨ÏîÄ¿ID£¬ÓÃ»§ID£¬Ìï / ¾¶£©
 extern int Event_changescore(long eveid, long period, int type, long score);	//ĞŞ¸ÄÏîÄ¿µÄÔË¶¯Ô±³É¼¨ £¨ÏîÄ¿ID£¬ÓÃ»§ID£¬Ìï/¾¶£¬³É¼¨£©
 
+extern void Event_list();
+
+extern int sys_incyuan(char* yuan);//Ôö¼ÓÔº
+extern int sys_decyuan(char* yuan);
+extern int sys_incxi(char* xi);//Ôö¼ÓÏµ
+extern int sys_decxi(char* xi);
+extern int sys_changepsw(char* msg);
+extern int sys_changecj(int i);
+extern int cmp(const void*a,const void*b);
+extern void  scoreToChar(long score, char * msg);
+extern int userSignupedEve(long id, int type);
 //±äÁ¿
 extern SysInfo sys_info;

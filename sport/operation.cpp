@@ -31,13 +31,26 @@ int inputPasswd(char * password)
 	return length;
 }
 
-int login(long id, char password[], int type)
+int login(long id, char* psw, int type)//0错误 1管理 2用户
 {
-	
-	
-	
-	
-	return 1; //表示登录成功
+	if(id<10000)return 0;
+	if(id==10000){
+		if(strcmp(sys_info.password ,psw)==0){
+			return 1;
+		}else{
+			return 0;
+		}
+	}else{
+		PerInfo peo;
+		peo=Person_getinfo(id);
+		if(peo.id==0)return 0;
+		if(strcmp(peo.password ,psw)==0){
+			return 2;
+		}else{
+			return 0;
+		}
+	}
+	return 0; //表示登录成功
 	//return 0; //表示账户或密码错误，登录失败
 }
 
@@ -46,44 +59,44 @@ int signup(PerInfo  msg)
 	int retValue = Person_create(msg);
 	if (retValue == 0)
 	{
-		printf("注册成功");
+		printf("\n\t注册成功");
 		return 0;
 	}
 	else
 	{
 		if (retValue == 1)
 		{
-			printf("名字：非法字符串");
+			printf("\n\t名字：非法字符串");
 		}
 		else if (retValue == 2)
 		{
-			printf("ID：非法ID");
+			printf("\n\tID：非法ID");
 		}
 		else if (retValue == 3)
 		{
-			printf("性别：非法数字");
+			printf("\n\t性别：非法数字");
 		}
 		else if (retValue == 4)
 		{
-			printf("院：非法字符串");
+			printf("\n\t院：非法字符串");
 		}
 		else if (retValue == 5)
 		{
-			printf("系：非法字符串");
+			printf("\n\t系：非法字符串");
 		}
 		else if (retValue == 6)
 		{
-			printf("密码：非法字符串");
+			printf("\n\t密码：非法字符串");
 		}
 		else if (retValue == 7)
 		{
-			printf("错误：该账号已存在");
+			printf("\n\t错误：该账号已存在");
 		}
 		else
 		{
-			printf("返回值错误");
+			printf("\n\t返回值错误");
 		}
-		printf("注册失败");
+		printf("\n\t注册失败");
 		return -1;
 	}
 }

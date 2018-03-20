@@ -1,6 +1,458 @@
 #include "stdafx.h";
 
-int userMenu()
+//修改密码
+//返回0，成功；返回1，失败
+int changePwd(long id)
+{
+	PerInfo msg;
+	char passwd[20];
+	char repeatPwd[20];
+	msg.id = id;
+	while (1)
+	{
+		clearScreen(100);
+		printf("\n\t请输入您的新密码\n");
+		inputPasswd(passwd);
+		printf("\n\t请再次输入您的新密码\n");
+		inputPasswd(repeatPwd);
+		if (!strcmp(passwd, repeatPwd))
+		{
+			puts("\n\n修改成功，返回主界面......");
+			break;
+		}
+
+		else
+		{
+			printf("\n\t您两次输入的密码不一致\n");
+			int choice;
+			while (1)
+			{
+				clearScreen(100);
+				printf("\n\t1. 重新修改 \n");
+				printf("\n\t 2. 退出修改  \n");
+
+				if (scanf("%d", &choice) == 1 && (choice <= 2 && choice >= 1))
+					break;
+				else
+					printf("\t\t您的输入有误，请重新输入");
+			}
+			if (choice == 1) continue;
+			else return 10;   //10 表示用户自己修改失败
+		}
+	}
+
+	strcpy(msg.password, passwd);
+	int i = Person_change(msg, 6);
+	return i;
+}
+
+//修改个人信息
+//返回0，成功；返回1，失败
+int changeInfo(long id, int type)
+{
+	PerInfo msg;
+	msg.id = id;
+	if (type == 1)
+	{
+		char name[20];
+		puts("\n\t请输入名字：");
+		scanf("%s", name);
+		strcpy(msg.name, name);
+	}
+	else if (type == 3)
+	{
+		int gender;
+		puts("\n\t请输入性别(0：男；1：女）：");
+		scanf("%d", &gender);
+		msg.gender = gender;
+	}
+	else if (type == 4)
+	{
+		char org[20];
+		puts("\n\t请输入组织：");
+		scanf("%s", org);
+		strcpy(msg.organization, org);
+	}
+	else if (type == 5)
+	{
+		char faculty[20];
+		puts("\n\t请输入系：");
+		scanf("%s", faculty);
+		strcpy(msg.faculty, faculty);
+	}
+	if (!Person_change(msg, type))
+	{
+		puts("\n修改成功");
+		return 0;
+	}
+	else
+	{
+		puts("\n修改失败");
+		return 1;
+	}
+}
+
+
+//该函数显示用户已报名的项目
+//返回已报名的项目数    type：0：不打印；1：打印
+int userSignupedEve(long id, int type)
+{
+	if (sys_info.eve == 0)
+	{
+		printf("\n\t没有比赛项目\n");
+		return 0;
+	}
+	int count = 0;
+	SportsEvent* evo = (SportsEvent *)malloc((sys_info.eve)*sizeof(SportsEvent));
+	Event_getlist(evo);
+
+	for (int o = 0; o < sys_info.eve; o++)
+	{
+		for (int p = 0; p < evo[o].maxpeople; p++)
+		{
+			if (evo[o].prePerson[p].id == id)
+			{
+				count++;
+				if (type)
+				{
+					printf("\n\n[项目%d] ", count);
+					if (evo[o].type / 10 == 1)
+						printf("男子 ");
+					else
+						printf("女子 ");
+					printf("%s ",evo[o].name);
+					if (evo[o].type % 2)
+						printf("径赛 ");
+					else
+						printf("田赛 ");
+					printf("%s (时长:%d分钟)  预赛人数:%d人 ", evo[o].place, evo[o].timecost, evo[o].maxpeople);
+					//printf("%d", evo[o].time);
+					//evo[o].time = 1521421395;
+					if (evo[o].time == 0)
+						printf(" 比赛时间未定");
+					else
+					{
+						time_t  tt = (time_t)evo[o].time;   //假定时间
+						char now[64];
+						struct tm *ttime;
+						ttime = localtime(&tt);
+						strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
+						printf(" %d年%d月%d日  %02d:%02d ", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
+						}
+
+					if (evo[o].type % 2) //径赛
+					{
+
+						char sc[20] = "";
+						//printf(" [分数:%d] ", evo[o].prePerson[p].score);
+						scoreToChar(evo[o].prePerson[p].score, sc);
+						printf(" 成绩:%s ", sc);
+					}
+					else
+					{
+						if (evo[o].prePerson[p].score > 1000)
+							printf(" 成绩:%dm ", evo[o].prePerson[p].score / 1000);
+
+						printf(" 成绩:%dcm ", evo[o].prePerson[p].score % 1000);
+					}
+					qsort(evo[o].prePerson, 100, sizeof(Participant), cmp);
+					int rank = 0;
+					if (evo[o].type % 2)   //径赛
+					{
+
+						for (int i = 0; i < 100; i++)
+						{
+							if (evo[o].prePerson[p].score == 0)
+								continue;
+							else
+							{
+								rank++;
+								if (evo[o].prePerson[p].id == id)
+									break;
+							}
+						}
+						if (rank == 0)
+							printf(" 暂无排名");
+						else
+							printf(" 第%d名\n", rank);
+					}
+					else
+					{
+
+						for (int i = 100; i > 0; i--)
+						{
+							if (evo[o].prePerson[p].score == 0)
+								continue;
+							else
+							{
+
+								rank++;
+								if (evo[o].prePerson[p].id == id)
+									break;
+							}
+						}
+						if (rank == 0)
+							printf(" 暂无排名");
+						else
+							printf(" 第%d名\n", rank);
+					}
+
+
+					if (evo[o].hasFinals)
+					{
+
+						printf("\n\t有决赛 (时长:%d分钟) 决赛人数:%d人", evo[o].timecost, evo[o].finNum);
+
+						for (int p = 0; p < evo[o].finNum; p++)
+						{
+							if (evo[o].finPerson[p].id == id)
+							{
+								if (type)
+								{
+									//evo[o].etime = 1521421395;
+									if (evo[o].etime == 0)
+										printf(" 比赛时间未定");
+									else
+									{
+										time_t  tt = (time_t)evo[o].etime;   //假定时间
+										char now[64];
+										struct tm *ttime;
+										ttime = localtime(&tt);
+										strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
+										printf(" %d年%d月%d日  %02d:%02d ", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
+
+									}
+									if (evo[o].type % 2) //径赛
+									{
+										char sc[20]="";
+										scoreToChar(evo[o].finPerson[p].score, sc);
+										printf(" 成绩:%s ", sc);
+									}
+									else
+									{
+										if (evo[o].finPerson[p].score > 1000)
+											printf(" 成绩:%dm ", evo[o].finPerson[p].score / 1000);
+
+										printf(" 成绩:%dcm ", evo[o].finPerson[p].score % 1000);
+									}
+									qsort(evo[o].finPerson, 20, sizeof(Participant), cmp);
+									int finRank = 0;
+									if (evo[o].type % 2)   //径赛
+									{
+
+										for (int i = 0; i < 20; i++)
+										{
+											if (evo[o].finPerson[p].score == 0)
+												continue;
+											else
+											{
+												finRank++;
+												if (evo[o].finPerson[p].id == id)
+													break;
+											}
+										}
+										if (finRank == 0)
+											printf("暂无排名 ");
+										else
+											printf("第%d名\n", finRank);
+									}
+									else
+									{
+										for (int i = 20, rank = 0; i > 0; i--)
+										{
+											if (evo[o].finPerson[p].score == 0)
+												continue;
+											else
+											{
+												rank++;
+												if (evo[o].finPerson[p].id == id)
+													break;
+											}
+										}
+										if (finRank == 0)
+											printf("暂无排名 ");
+										else
+											printf("第%d名\n", finRank);
+									}
+								}
+							}
+						}
+
+					}
+					else
+						printf(" 无决赛\n");
+				}
+				break;
+			}
+			else
+				continue;
+
+		}
+	}
+
+	free(evo);
+	
+	fflush(stdin);
+	if (type)
+	{
+		if (count == 0)
+			printf("\n  暂无已报名的运动项目\n");
+		printf("\n\n  按回车键回到上一级");
+		getchar();
+	}
+	return count;
+}
+
+//该函数用于报名项目（预赛）
+//返回0，成功；返回1，失败
+int signupSports(long  peoid)
+{
+	if (sys_info.eve == 0)
+	{
+		printf("\n\t没有比赛项目，报名失败\n");
+		return 1;
+	}
+	if (sys_info.canjoin == 0)
+	{
+		printf("\n\t目前不是报名时间，报名失败\n");
+		return 1;
+	}
+	int count = 0;
+	SportsEvent* evo = (SportsEvent *)malloc((sys_info.eve)*sizeof(SportsEvent));
+	Event_getlist(evo);
+	for (int o = 0; o < sys_info.eve; o++)
+	{
+		printf("\n[项目%d]   ", o);
+		printf("ID:%ld ", evo[o].id);
+		if (evo[o].type / 10 == 1)
+			printf("男子 ");
+		else
+			printf("女子 ");
+		if (evo[o].type % 2)
+			printf("径赛 ");
+		else
+			printf("田赛 ");
+		printf("%s (时长:%d分钟) 预赛人数:%d人 -", evo[o].place, evo[o].timecost, evo[o].maxpeople);
+		//evo[o].time = 1521421395;
+		if (evo[o].time == 0)
+			printf(" 比赛时间未定");
+		else
+		{
+			time_t  tt = (time_t)evo[o].time;   //假定时间
+			char now[64];
+			struct tm *ttime;
+			ttime = localtime(&tt);
+			strftime(now, 64, "%Y-%m-%d %H:%M:%S", ttime);
+			printf(" %d年%d月%d日  %02d:%02d", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
+		}
+
+		if (evo[o].hasFinals)
+			printf(" 有决赛 (时长:%d分钟)\n", evo[o].timecost);
+		else
+			printf(" 无决赛\n");
+	}
+	free(evo);
+
+	long eveid;
+	count = userSignupedEve(peoid, 0);
+
+	if (count >= 3)
+	{
+		printf("\n  您报名的项目已满（最多三个）\n");
+		Sleep(1000);
+		return 1;
+	}
+
+	printf("\n  请输入您想报名的项目的ID : ");
+	scanf("%ld", &eveid);
+	if (Event_had(eveid))
+	{
+		if (Event_getinfo(eveid).type / 20 != Person_getinfo(peoid).gender)
+		{
+			printf("\n  您报名的项目有误（性别错误）\n");
+			Sleep(500);
+			printf("\n  正在跳转，返回上一级.......");
+			return 1;
+		}
+		printf("报名返回值为:%d", Event_inc(eveid, peoid, 0));
+		if (Event_inc(eveid, peoid, 0) != 0)
+		{
+			printf("\n\t报名失败\n");
+			return 1;
+		}
+
+		printf("\n 报名参赛成功\n");
+		return 0;
+	}
+	else
+		printf("\n  不存在此项目\n\n  正在跳转，返回上一级.......");
+	Sleep(500);
+	return 1;
+
+}
+
+
+//该函数显示用户准备注册过程
+//返回0：成功；1：失败
+int toSignupMenu()
+{
+	int choice;
+
+	PerInfo perInfo;
+
+	printf("\n 请稍候，页面正在跳转中 ......");
+	while (1)
+	{
+
+		clearScreen(500);
+		printf("\n\t注册界面 \n");
+
+		printf("\n\t请输入学号（ID）：");
+		scanf("%ld", &perInfo.id);
+
+		printf("\n\t请输入姓名（Name）：");
+		scanf("%s", perInfo.name);
+
+		printf("\n\t请输入性别（Gender：0 -- 男；1 -- 女）：");
+		scanf("%d", &perInfo.gender);
+
+		printf("\n\t请输入所在院（Organization）：");
+		scanf("%s", perInfo.organization);
+
+		printf("\n\t请输入所在系（Faculty）：");
+		scanf("%s", perInfo.faculty);
+
+		printf("\n\t请输入密码（Password）：");
+		inputPasswd(perInfo.password);
+
+		if (!signup(perInfo)) break;
+		else
+		{
+
+			while (1)
+			{
+				printf("\n\t1. 重新输入\n");
+				printf("\n\t2. 退出注册\n");
+				if (scanf("%d", &choice) == 1 && (choice <= 2 && choice >= 1))
+					break;
+				else
+					printf("\n\t\t 您的输入有误，请重新输入");
+			}
+			if (choice == 1)
+				continue;
+			else
+			{
+				printf("\n\t注册失败");
+				return 1;
+			}
+
+		}
+	}
+
+	return 0;
+}
+//该函数显示用户登录后的菜单
+int userMenu(long id)
 {
 	int choice;
 	while (1)
@@ -8,17 +460,41 @@ int userMenu()
 
 		while (1)
 		{
-			clearScreen(1000);
-			printf("\t\t\t *************************************************** \n");
+			clearScreen(500);
+			Notice * not = (Notice *)malloc((sys_info.not)*sizeof(Notice));
+			int i = 0;
+			if (!Person_getnotice(id, not))
+			{
+				if (!(not[i].time > 0)) printf("[暂无个人通知]\n");
+				else printf("[个人通知]\n\n");
+				while (not[i].time > 0)
+				{
+					
+					printf("[通知%d] ", i + 1);
+					time_t  tt = (time_t)not[i].time;   //假定时间
+					char now[64];
+					struct tm *ttime;
+					ttime = localtime(&tt);
+					strftime(now, 64, "%Y-%m-%d %H:%M:%S", ttime);
+					printf(" 通知时间：%d年%d月%d日  %02d:%02d  ", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
+
+					printf(" 通知信息：%s\n", not[i].msg);
+					puts("");
+					i++;
+				}
+			}
+			
+				
+			free(not);
+			printf("\n\t\t\t *************************************************** \n");
 			printf("\n\t\t\t\t\t汕头大学校运会管理系统\t\t    \n");
 			printf("\n\t\t\t *************************************************** \n\n");
-			printf("\n\t\t\t 1. 个人管理              \t 2. 查看运动会 \n");
-			printf("\n\t\t\t 3. 报名运动会           \t 4. 查看通知栏     \n");
-			printf("\n\t\t\t 5. 查看我的项目        \t 6. 查看运动项目 \n");
-			printf("\n\t\t\t 7. 退出登录              \t 8. 退出系统        \n\n");
+			printf("\n\t\t\t 1. 修改密码		\t 2. 修改信息 \n");
+			printf("\n\t\t\t 3. 查看报名项目	\t 4. 报名运动会 \n");
+			printf("\n\t\t\t 5. 退出登录		\t 6. 退出系统  \n\n");
 
 
-			if (scanf("%d", &choice) == 1 && (choice <= 8 && choice >= 1))
+			if (scanf("%d", &choice) == 1 && (choice <= 6 && choice >= 1))
 				break;
 			else
 				printf("\t\t\t 您的输入有误，请重新输入");
@@ -26,228 +502,61 @@ int userMenu()
 		switch (choice)
 		{
 			case 1:
-			case 2:
-			case 3:
-			case 4:
-			case 5:
-			case 6:
+				changePwd(id);
 				break;
-			case 7:
+			case 2:
+				while (1)
+				{
+					clearScreen(100);
+					PerInfo per = Person_getinfo(id);
+					printf("\n\t\t\t  姓名：%s", per.name);
+					if (per.gender) printf(" 性别：女");
+					else printf(" 性别：男");
+					printf(" 书院：%s   系：%s\n", per.organization, per.faculty);
+					printf("\n\t\t\t *************************************************** \n");
+					printf("\n\t\t\t\t\t汕头大学校运会管理系统\t\t    \n");
+					printf("\n\t\t\t *************************************************** \n\n");
+					printf("\n\t\t\t 1. 修改姓名		\t 2. 修改性别 \n");
+					printf("\n\t\t\t 3. 修改书院		\t 4. 修改系 \n");
+					printf("\n\t\t\t 5. 返回上一级\n\n");
+
+
+					if (scanf("%d", &choice) == 1 && (choice <= 5 && choice >= 1))
+						break;
+					else
+						printf("\t\t\t 您的输入有误，请重新输入");
+				}
+				switch (choice)
+				{
+					case 1:
+						changeInfo(id, 1);
+						break;
+					case 2:
+						changeInfo(id, 3);
+						break;
+					case 3:
+						changeInfo(id, 4);
+						break;
+					case 4:
+						changeInfo(id, 5);
+					default:
+						continue;
+				}
+				break;
+			case 3:
+				userSignupedEve(id, 1);
+				break;
+			case 4:
+				signupSports(id);
+				break;
+			case 5:
 				return -1;
 			default:
 				return 0;
 		}
 	}
-}
-int toSignupMenu()//注册菜单
-{
-	//PerInfo perInfo;
-	char name[20];
-	long int id;
-	int gender;
-	char org[20];
-	char faculty[20];
-	char passwd[20];
-
-	int choice;
-	int isReset;
-	int isSuccess;
-
-	while (1)
-	{
-		isSuccess = 0;
-		isReset = 0;
-		printf("\n 请稍候，页面正在跳转中 ......");
-		clearScreen(500);
-		printf("\n\t注册界面 \n");
-		while (1)
-		{
-			printf("\n\t请输入学号（ID）：");
-			scanf("%ld", &id);
-			if (1) //检查
-			{
-				printf("\n\t您输入的学号（ID）有误\n");
-				choice = signupErrorMenu();
-				if (choice == 1)
-					continue;
-				else if (choice == 2)
-				{
-					isReset = 1;
-					break;
-				}
-				else return -1;
-			}
-			else
-				break;
-		}
-		if (isReset)
-		{
-			fflush(stdin);
-			continue;
-		}
-
-		while (1)
-		{
-			printf("\n\t请输入姓名（Name）：");
-			scanf("%s", name);
-			if (1) //检查
-			{
-				printf("\n\t您输入的姓名（Name）有误\n");
-				choice = signupErrorMenu();
-				if (choice == 1)
-					continue;
-				else if (choice == 2)
-				{
-					isReset = 1;
-					break;
-				}
-				else return -1;
-			}
-			else
-				break;
-		}
-		if (isReset)
-		{
-			fflush(stdin);
-			continue;
-		}
-
-		while (1)
-		{
-			printf("\n\t请输入性别（Gender：0 -- 男；1 -- 女）：");
-			scanf("%d", &gender);
-			if (1) //检查
-			{
-				printf("\n\t您输入的性别（Gender：0 -- 男；1 -- 女）有误\n");
-				choice = signupErrorMenu();
-				if (choice == 1)
-					continue;
-				else if (choice == 2)
-				{
-					isReset = 1;
-					break;
-				}
-				else return -1;
-			}
-			else
-				break;
-		}
-		if (isReset)
-		{
-			fflush(stdin);
-			continue;
-		}
-
-		while (1)
-		{
-			printf("\n\t请输入所在院（Organization）：");
-			scanf("%s", org);
-			if (1) //检查
-			{
-				printf("\n\t您输入的所在院（Organization）有误\n");
-				choice = signupErrorMenu();
-				if (choice == 1)
-					continue;
-				else if (choice == 2)
-				{
-					isReset = 1;
-					break;
-				}
-				else return -1;
-			}
-			else
-				break;
-		}
-		if (isReset)
-		{
-			fflush(stdin);
-			continue;
-		}
-
-		while (1)
-		{
-			printf("\n\t请输入所在系（Faculty）：");
-			scanf("%s", faculty);
-			if (1) //检查
-			{
-				printf("\n\t您输入的所在系（Faculty）有误\n");
-				choice = signupErrorMenu();
-				if (choice == 1)
-					continue;
-				else if (choice == 2)
-				{
-					isReset = 1;
-					break;
-				}
-				else return -1;
-			}
-			else
-				break;
-		}
-		if (isReset)
-		{
-			fflush(stdin);
-			continue;
-		}
-
-		while (1)
-		{
-			printf("\n\t请输入密码（Password）：");
-			scanf("%s", passwd);
-			if (1) //检查
-			{
-				printf("\n\t您输入的密码（Password）有误\n");
-				choice = signupErrorMenu();
-				if (choice == 1)
-					continue;
-				else if (choice == 2)
-				{
-					isReset = 1;
-					break;
-				}
-				else return -1;
-			}
-			else
-			{
-				break;
-				isSuccess = 1;
-			}
-		}
-		if (isReset)
-		{
-			fflush(stdin);
-			continue;
-		}
-
-		if (isSuccess)
-		{
-			fflush(stdin);
-			break;
-		}
-	}
-	PerInfo perInfo = {
-		name[20],
-		id,
-		gender,
-		org[20],
-		faculty[20],
-		passwd[20]
-	};
-	printf("\n\t 注册成功\n");
 	return 0;
 }
-int signupErrorMenu()//注册出错
-{
-	int choice;
-	while (1)
-	{
-		printf("\n\t1. 重新输入该项信息\n");
-		printf("\n\t2. 重新输入所有信息\n");
-		printf("\n\t3. 退出注册\n");
-		if (scanf("%d", &choice) == 1 && (choice <= 3 && choice >= 1))
-			break;
-		else
-			printf("\n\t\t 您的输入有误，请重新输入");
-	}
-	return  choice;
-}
+
+
+
