@@ -16,6 +16,20 @@
 #include <time.h>
 #include <Windows.h>
 #include <direct.h> 
+typedef struct changdi{
+	long num;
+	char name[100][20];
+	long time[100];
+}changdi;
+
+
+typedef struct sorteve{
+	long id;
+	int isFinals;//决赛 0否 1是
+	long time;
+	int cancle;
+}sorteve;
+
 typedef struct SysInfo{
 	int peo;//人数
 	int eve;//项目数
@@ -112,8 +126,9 @@ extern int Event_getlist(SportsEvent * evo);	//获取所有项目
 extern int Event_inc(long eveid, long period, int type);	//增加项目的运动员（项目ID，用户ID，田/径）
 extern int Event_dec(long eveid, long period, int type);	// 删除项目的运动员（项目ID，用户ID，田 / 径）
 extern int Event_changescore(long eveid, long period, int type, long score);	//修改项目的运动员成绩 （项目ID，用户ID，田/径，成绩）
-
+extern int Event_hasPer(SportsEvent a,long id,int isfinal);	//项目有没这个人
 extern void Event_list();
+extern long  charToScore(char * msg);//char * msg
 
 extern int sys_incyuan(char* yuan);//增加院
 extern int sys_decyuan(char* yuan);
@@ -122,7 +137,9 @@ extern int sys_decxi(char* xi);
 extern int sys_changepsw(char* msg);
 extern int sys_changecj(int i);
 extern int cmp(const void*a,const void*b);
+extern int cmp2(const void*a,const void*b);
 extern void  scoreToChar(long score, char * msg);
 extern int userSignupedEve(long id, int type);
+extern int toTableMenu();
 //变量
 extern SysInfo sys_info;

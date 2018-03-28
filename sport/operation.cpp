@@ -11,7 +11,7 @@ int inputPasswd(char * password)
 {
 	char ch;
 	int length = 0;
-	while ((ch = getch()) != '\r')
+	while ((ch = _getch()) != '\r')
 	{
 		if (ch != 8)//不是回撤就录入
 		{
@@ -21,6 +21,7 @@ int inputPasswd(char * password)
 		}
 		else
 		{
+			if(!length)continue;
 			putchar('\b');//这里是删除一个，我们通过输出回撤符 /b，回撤一格，
 			putchar(' ');//再显示空格符把刚才的*给盖住，
 			putchar('\b');//然后再 回撤一格等待录入。
@@ -60,43 +61,46 @@ int signup(PerInfo  msg)
 	if (retValue == 0)
 	{
 		printf("\n\t注册成功");
+		Sleep(500);
 		return 0;
 	}
 	else
 	{
+		puts("");
 		if (retValue == 1)
 		{
-			printf("\n\t名字：非法字符串");
+			printf("\n\t名字：非法字符串\n");
 		}
 		else if (retValue == 2)
 		{
-			printf("\n\tID：非法ID");
+			printf("\n\tID：非法ID\n");
 		}
 		else if (retValue == 3)
 		{
-			printf("\n\t性别：非法数字");
+			printf("\n\t性别：非法数字\n");
 		}
 		else if (retValue == 4)
 		{
-			printf("\n\t院：非法字符串");
+			printf("\n\t院：非法字符串\n");
 		}
 		else if (retValue == 5)
 		{
-			printf("\n\t系：非法字符串");
+			printf("\n\t系：非法字符串\n");
 		}
 		else if (retValue == 6)
 		{
-			printf("\n\t密码：非法字符串");
+			printf("\n\t密码：非法字符串\n");
 		}
 		else if (retValue == 7)
 		{
-			printf("\n\t错误：该账号已存在");
+			printf("\n\t错误：该账号已存在\n");
 		}
 		else
 		{
-			printf("\n\t返回值错误");
+			printf("\n\t返回值错误\n");
 		}
-		printf("\n\t注册失败");
+		printf("\n\t注册失败\n");
+		Sleep(500);
 		return -1;
 	}
 }

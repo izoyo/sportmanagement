@@ -18,6 +18,12 @@ int cmp(const void*a,const void*b){//´ÓÐ¡µ½´ó  qsort(evo,3,sizeof(Participant),c
 	if(c->score != d->score) return c->score - d->score;
 	else return d->score - c->score;
 }
+int cmp2(const void*a,const void*b){//´ÓÐ¡µ½´ó  qsort(evo,sys_info.eve,sizeof(sorteve),cmp2);
+	struct sorteve *c = (sorteve *)a;
+	struct sorteve *d = (sorteve *)b;
+	if(c->time != d->time) return c->time - d->time;
+	else return d->time - c->time;
+}
 
 void  scoreToChar(long score, char * msg)//°Ñ±ÈÈüµÄÊ±¼ä³É¼¨×ª»¯ÎªÊ±¼ä¸ñÊ½×Ö·û´®£¨Èç12'12''12)
 {
@@ -29,11 +35,43 @@ void  scoreToChar(long score, char * msg)//°Ñ±ÈÈüµÄÊ±¼ä³É¼¨×ª»¯ÎªÊ±¼ä¸ñÊ½×Ö·û´®£
 
 	itoa((score % 60000) / 1000, t, 10);
 	strcat(msg, t);
-	strcat(msg, "''");
-	if (score % 1000 > 100)
+	strcat(msg, "\"");
+	if (score % 1000 >= 100)
 		itoa((score % 1000) / 10, t, 10);
-	else if (score % 1000 < 10)
+	else if (score % 1000 >= 10)
+	{
 		strcat(msg, "0");
-	itoa(score % 1000, t, 10);
+		itoa((score % 1000) / 10, t, 10);
+	}
+		
+	if (score % 1000 >= 10)
+		itoa(score % 1000, t, 10);
 	strcat(msg, t);
+}
+long  charToScore(char * str)//°ÑÊ±¼ä³É¼¨×Ö·û´®£¨Èç12'12"12)×ª»¯Îª±ÈÈüµÄÊ±¼ä³É¼¨£¬·µ»Ø-1¸ñÊ½´íÎó
+{
+	
+	const char s[2] = "'",s2[2]="\"";
+	char *token1,*token2,*token3,*token4;
+	int i=0;
+	token1 = strtok(str, s);
+	if( token1 != NULL ) {
+		//printf( " %s\n", token1 );
+		token2 = strtok(NULL, s);
+		if( token2 != NULL )i=1;
+	}
+	if(!i)return -1;
+	i=0;
+	//printf( " %s\n", token2 );
+	token3 = strtok(token2, s2);
+	if( token3 != NULL ) {
+		//printf( " %s\n", token3 );
+		token4 = strtok(NULL, s2);
+		i=1;
+	}
+	if(!i)return -1;
+	//printf( " %s\n", token4 );
+	if( token4 == NULL )token4="0";
+	return atoi(token1)*60000+atoi(token3)*1000+atoi(token4)*10;
+
 }

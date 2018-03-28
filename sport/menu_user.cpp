@@ -5,42 +5,59 @@
 int changePwd(long id)
 {
 	PerInfo msg;
+	char nowPwd[20]; 
+	char inputPwd[20];
 	char passwd[20];
 	char repeatPwd[20];
 	msg.id = id;
-	while (1)
-	{
-		clearScreen(100);
-		printf("\n\t请输入您的新密码\n");
-		inputPasswd(passwd);
-		printf("\n\t请再次输入您的新密码\n");
-		inputPasswd(repeatPwd);
-		if (!strcmp(passwd, repeatPwd))
-		{
-			puts("\n\n修改成功，返回主界面......");
-			break;
-		}
 
-		else
+		strcpy(nowPwd, Person_getinfo(id).password);
+		int wrong = 0;
+		while (wrong < 3)
 		{
-			printf("\n\t您两次输入的密码不一致\n");
-			int choice;
-			while (1)
+			clearScreen(100);
+			printf("\n\t请输入您的当前密码\n");
+			inputPasswd(inputPwd);
+			if (!strcmp(nowPwd, inputPwd))
+				break;
+			else
 			{
-				clearScreen(100);
-				printf("\n\t1. 重新修改 \n");
-				printf("\n\t 2. 退出修改  \n");
-
-				if (scanf("%d", &choice) == 1 && (choice <= 2 && choice >= 1))
-					break;
-				else
-					printf("\t\t您的输入有误，请重新输入");
+				wrong++;
+				printf("\n\t密码错误，请重新输入\n");
+				Sleep(1000);
+				continue;
 			}
-			if (choice == 1) continue;
-			else return 10;   //10 表示用户自己修改失败
 		}
-	}
+		if (wrong == 3)
+		{
+			printf("\n    密码输入错误3次，正在返回上一级......");
+			Sleep(1500);
+			return -1;
+		}
+		while (1)
+		{
+			printf("\n\t请输入您的新密码\n");
+			inputPasswd(passwd);
+			printf("\n\t请再次输入您的新密码\n");
+			inputPasswd(repeatPwd);
+			if (!strcmp(passwd, repeatPwd))
+			{
+				if (!strcmp(passwd, nowPwd))
+					printf("\n\t请不要设置相同的密码\n");
+				else
+				{
+					puts("\n\t修改成功，返回主界面......");
+					Sleep(500);
+					break;
+				}
+					
+			}
+			else
+				printf("\n\t您两次输入的密码不一致\n");
 
+		}
+		
+	
 	strcpy(msg.password, passwd);
 	int i = Person_change(msg, 6);
 	return i;
@@ -115,7 +132,7 @@ int userSignupedEve(long id, int type)
 				count++;
 				if (type)
 				{
-					printf("\n\n[项目%d] ", count);
+					printf("\n\n[项目%d] ID:%ld  ", count, evo[o].id);
 					if (evo[o].type / 10 == 1)
 						printf("男子 ");
 					else
@@ -162,12 +179,12 @@ int userSignupedEve(long id, int type)
 
 						for (int i = 0; i < 100; i++)
 						{
-							if (evo[o].prePerson[p].score == 0)
+							if (evo[o].prePerson[i].score == 0)
 								continue;
 							else
 							{
 								rank++;
-								if (evo[o].prePerson[p].id == id)
+								if (evo[o].prePerson[i].id == id)
 									break;
 							}
 						}
@@ -181,13 +198,13 @@ int userSignupedEve(long id, int type)
 
 						for (int i = 100; i > 0; i--)
 						{
-							if (evo[o].prePerson[p].score == 0)
+							if (evo[o].prePerson[i].score == 0)
 								continue;
 							else
 							{
 
 								rank++;
-								if (evo[o].prePerson[p].id == id)
+								if (evo[o].prePerson[i].id == id)
 									break;
 							}
 						}
@@ -242,12 +259,12 @@ int userSignupedEve(long id, int type)
 
 										for (int i = 0; i < 20; i++)
 										{
-											if (evo[o].finPerson[p].score == 0)
+											if (evo[o].finPerson[i].score == 0)
 												continue;
 											else
 											{
 												finRank++;
-												if (evo[o].finPerson[p].id == id)
+												if (evo[o].finPerson[i].id == id)
 													break;
 											}
 										}
@@ -260,12 +277,12 @@ int userSignupedEve(long id, int type)
 									{
 										for (int i = 20, rank = 0; i > 0; i--)
 										{
-											if (evo[o].finPerson[p].score == 0)
+											if (evo[o].finPerson[i].score == 0)
 												continue;
 											else
 											{
 												rank++;
-												if (evo[o].finPerson[p].id == id)
+												if (evo[o].finPerson[i].id == id)
 													break;
 											}
 										}
@@ -297,9 +314,44 @@ int userSignupedEve(long id, int type)
 	{
 		if (count == 0)
 			printf("\n  暂无已报名的运动项目\n");
-		printf("\n\n  按回车键回到上一级");
+		else
+		{
+			int ch;
+			printf("\n  是否取消报名项目\n\n  1. 是 2. 否(输入除数字1以外的键)  ");
+			scanf("%d", &ch);
+			if (ch == 1)
+			{
+				int eveid;
+				printf("\n 请输入要取消报名的项目ID  ");
+				if (scanf("%ld", &eveid))
+				{
+					if (Event_dec(eveid, id, 0) == 0)
+					{
+						printf("\n  取消报名成功\n");
+						Sleep(1000);
+						return 1;
+					}
+					else
+					{
+						printf("\n  取消报名失败，可能你的输入错误");
+						Sleep(1000);
+					}
+				}
+				else
+				{
+					printf("\n  输入错误");
+					Sleep(1000);
+				}
+
+
+			}
+
+		}
+		fflush(stdin);
+		printf("\n  按回车键返回上一级");
 		getchar();
 	}
+
 	return count;
 }
 
@@ -310,11 +362,13 @@ int signupSports(long  peoid)
 	if (sys_info.eve == 0)
 	{
 		printf("\n\t没有比赛项目，报名失败\n");
+		Sleep(1000);
 		return 1;
 	}
 	if (sys_info.canjoin == 0)
 	{
 		printf("\n\t目前不是报名时间，报名失败\n");
+		Sleep(1000);
 		return 1;
 	}
 	int count = 0;
@@ -347,7 +401,7 @@ int signupSports(long  peoid)
 		}
 
 		if (evo[o].hasFinals)
-			printf(" 有决赛 (时长:%d分钟)\n", evo[o].timecost);
+			printf(" 有决赛\n");
 		else
 			printf(" 无决赛\n");
 	}
@@ -370,23 +424,30 @@ int signupSports(long  peoid)
 		if (Event_getinfo(eveid).type / 20 != Person_getinfo(peoid).gender)
 		{
 			printf("\n  您报名的项目有误（性别错误）\n");
-			Sleep(500);
+			Sleep(1000);
 			printf("\n  正在跳转，返回上一级.......");
 			return 1;
 		}
-		printf("报名返回值为:%d", Event_inc(eveid, peoid, 0));
-		if (Event_inc(eveid, peoid, 0) != 0)
+		/*printf("报名返回值为:%d", Event_inc(eveid, peoid, 0));*/
+		if (Event_inc(eveid, peoid, 0) == 3)
 		{
-			printf("\n\t报名失败\n");
+			printf("\n  不要重复报名该项目\n");
+			Sleep(1000);
 			return 1;
 		}
 
 		printf("\n 报名参赛成功\n");
+		fflush(stdin);
+		printf("\n  按回车键返回上一级");
+		getchar();
 		return 0;
 	}
 	else
-		printf("\n  不存在此项目\n\n  正在跳转，返回上一级.......");
-	Sleep(500);
+		printf("\n  不存在此项目\n");
+
+	fflush(stdin);
+	printf("\n  按回车键返回上一级");
+	getchar();
 	return 1;
 
 }
@@ -490,7 +551,7 @@ int userMenu(long id)
 			printf("\n\t\t\t\t\t汕头大学校运会管理系统\t\t    \n");
 			printf("\n\t\t\t *************************************************** \n\n");
 			printf("\n\t\t\t 1. 修改密码		\t 2. 修改信息 \n");
-			printf("\n\t\t\t 3. 查看报名项目	\t 4. 报名运动会 \n");
+			printf("\n\t\t\t 3. 管理已报名项目	\t 4. 报名运动会 \n");
 			printf("\n\t\t\t 5. 退出登录		\t 6. 退出系统  \n\n");
 
 
@@ -542,6 +603,9 @@ int userMenu(long id)
 					default:
 						continue;
 				}
+				fflush(stdin);
+				puts("\n\n按回车键返回上一步");
+				getchar();
 				break;
 			case 3:
 				userSignupedEve(id, 1);
