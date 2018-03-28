@@ -6,6 +6,7 @@ int toYuanMsgMenu(){
 	PerInfo peo;
 	SportsEvent* eve;
 	joinevent* joineve;
+	char buff[50];
 	eve = (SportsEvent *)malloc(sys_info.eve*sizeof(SportsEvent));//项目列表
 	Event_getlist(eve);
 	for(p=0;p<20;p++){
@@ -36,8 +37,9 @@ int toYuanMsgMenu(){
 									joineve[o].joinnum++;
 									if(eve[o].prePerson[i].score){//有成绩
 										if(!eve[o].hasFinals){//没有决赛
-											if(rank<6 && eve[o].maxpeople>6)printf("\t排名：%d %s 成绩：%d\n",rank,peo.name,eve[o].prePerson[i].score);
-											else if(rank<4 && eve[o].maxpeople>3)printf("\t排名：%d %s 成绩：%d\n",rank,peo.name,eve[o].prePerson[i].score);
+											scoreToChar(eve[o].prePerson[i].score, buff);
+											if (rank<6 && eve[o].maxpeople>6)printf("\t排名：%d %s 成绩：%s\n", rank, peo.name, buff);
+											else if (rank<4 && eve[o].maxpeople>3)printf("\t排名：%d %s 成绩：%s\n", rank, peo.name, buff);
 											if(eve[o].maxpeople>6){
 												switch(rank){//多于6人加分
 													case 1:
@@ -79,8 +81,9 @@ int toYuanMsgMenu(){
 									if(!strcmp(peo.organization,sys_info.yuan[p])){//同一个院
 										joineve[o].joinenum++;
 										if(eve[o].finPerson[i].score){//有成绩
-											if(rank<6 && eve[o].maxpeople>6)printf("\t排名：%d %s 成绩：%d\n",rank,peo.name,eve[o].finPerson[i].score);
-											else if(rank<4 && eve[o].maxpeople>3)printf("\t排名：%d %s 成绩：%d\n",rank,peo.name,eve[o].finPerson[i].score);
+											scoreToChar(eve[o].finPerson[i].score, buff);
+											if (rank<6 && eve[o].finNum>6)printf("\t排名：%d %s 成绩：%s\n", rank, peo.name, buff);
+											else if (rank<4 && eve[o].finNum>3)printf("\t排名：%d %s 成绩：%s\n", rank, peo.name, buff);
 											if(eve[o].maxpeople>6){
 													switch(rank){//多于6人加分
 														case 1:
@@ -761,7 +764,7 @@ int toSituationMenu(){//比赛情况
 	while(1){
 		while (1)
 		{
-			clearScreen(1000);
+			clearScreen(500);
 			printf("\n\t 1. 书院信息\n");
 			printf("\n\t 2. 系信息\n");
 			printf("\n\t 3. 运动员信息\n");
@@ -829,13 +832,13 @@ int toLoginMenu(int type)//type现在都输入1
 				if (choice == 1)
 				{
 					printf("\n 请稍候，页面正在跳转中 ......");
-					clearScreen(1000);
+					clearScreen(500);
 				}
 				else if (choice == 2)
 				{
 
 					printf("\n 请稍候，页面正在跳转中 ......");
-					clearScreen(1000);
+					clearScreen(500);
 					return -1;
 				}
 				else
@@ -984,7 +987,7 @@ int loginMenu()
 		isRetLast = 0;
 		while (1)
 		{
-			clearScreen(100);
+			clearScreen(500);
 			printf("\n\t 1.  登录 \n");
 			printf("\n\t 2.  注册 \n");
 			printf("\n\t 3.  查看秩序册 \n");
@@ -994,7 +997,11 @@ int loginMenu()
 			if (scanf("%d", &type) == 1 && (type <= 5 && type >= 1))
 				break;
 			else
+			{
 				printf("\t 您的输入有误，请重新输入");
+				Sleep(500);
+			}
+				
 
 		}
 		switch (type)

@@ -3,7 +3,7 @@
 void clearScreen(int sleepS)
 {
 	fflush(stdin);
-	//Sleep(sleepS/100);
+	Sleep(sleepS);
 	system("cls");
 }
 
@@ -11,7 +11,7 @@ int inputPasswd(char * password)
 {
 	char ch;
 	int length = 0;
-	while ((ch = getch()) != '\r')
+	while ((ch = _getch()) != '\r')
 	{
 		if (ch != 8)//不是回撤就录入
 		{
@@ -61,43 +61,46 @@ int signup(PerInfo  msg)
 	if (retValue == 0)
 	{
 		printf("\n\t注册成功");
+		Sleep(500);
 		return 0;
 	}
 	else
 	{
+		puts("");
 		if (retValue == 1)
 		{
-			printf("\n\t名字：非法字符串");
+			printf("\n\t名字：非法字符串\n");
 		}
 		else if (retValue == 2)
 		{
-			printf("\n\tID：非法ID");
+			printf("\n\tID：非法ID\n");
 		}
 		else if (retValue == 3)
 		{
-			printf("\n\t性别：非法数字");
+			printf("\n\t性别：非法数字\n");
 		}
 		else if (retValue == 4)
 		{
-			printf("\n\t院：非法字符串");
+			printf("\n\t院：非法字符串\n");
 		}
 		else if (retValue == 5)
 		{
-			printf("\n\t系：非法字符串");
+			printf("\n\t系：非法字符串\n");
 		}
 		else if (retValue == 6)
 		{
-			printf("\n\t密码：非法字符串");
+			printf("\n\t密码：非法字符串\n");
 		}
 		else if (retValue == 7)
 		{
-			printf("\n\t错误：该账号已存在");
+			printf("\n\t错误：该账号已存在\n");
 		}
 		else
 		{
-			printf("\n\t返回值错误");
+			printf("\n\t返回值错误\n");
 		}
-		printf("\n\t注册失败");
+		printf("\n\t注册失败\n");
+		Sleep(500);
 		return -1;
 	}
 }
