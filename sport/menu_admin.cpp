@@ -1,9 +1,64 @@
 #include "stdafx.h";
+long timeTransferToTime_t(char strtime[50])
+{
+	int ppp;
+	char* p;
+	const char delim[2] = "-";//分隔符字符串
+	struct tm p_stm;
+	p = strtok(strtime, delim);//第一次调用strtok
+	char pp[5][20];
+	ppp = 0;
+	char str[20];
+	int year;
+	int mon;
+	int day;
+	int hour;
+	int min;
+	if (p != NULL)strcpy(pp[ppp++], p);
+	while (p != NULL)
+	{//当返回值不为NULL时，继续循环
+		//printf("%s\n", p);//输出分解的字符串
+		p = strtok(NULL, delim);//继续调用strtok，分解剩下的字符串
+		if (p != NULL) strcpy(pp[ppp++], p);
+		if (ppp >= 5)break;
+	}
+	if (ppp == 5)
+	{
+		strcpy(str, pp[0]);
+		year = atoi(str);
+		strcpy(str, pp[1]);
+		mon = atoi(str);
+		strcpy(str, pp[2]);
+		day = atoi(str);
+		strcpy(str, pp[3]);
+		hour = atoi(str);
+		strcpy(str, pp[4]);
+		min = atoi(str);
+
+		p_stm.tm_year = year - 1900;
+		p_stm.tm_mon = mon - 1;
+		p_stm.tm_mday = day;
+		p_stm.tm_hour = hour;
+		p_stm.tm_min = min;
+		p_stm.tm_sec = 0;
+		p_stm.tm_isdst = -1;
+
+		long time = (long)mktime(&p_stm);
+
+		return time;
+	}
+	else
+	{
+		printf("输入错误");
+	}
+	return 0;
+}
+
 
 int changeEventProperty(long eve_id)
 {
 	SportsEvent eve;
-	int choice;
+	int choice = 0;
 	char name[20];
 	int type;//10男田、11男径、20女田、21女径
 	char place[20];//场地
@@ -13,212 +68,169 @@ int changeEventProperty(long eve_id)
 	int finNum;//有决赛时决赛人数
 	long time;//比赛时间戳，秒
 	long etime;//决赛时间
-	int ppp;
-	char* p;
-	const char delim[2] = "-";//分隔符字符串
 	eve.id = eve_id;
-	while (1)
+	do
 	{
-		clearScreen(400);
-		printf("\n\t请选择需要修改的属性\n");
-		printf("\n\t 1.  修改名字 \n");
-		printf("\n\t 2.  修改项目类型 \n");
-		printf("\n\t 3.  修改场地\n");
-		printf("\n\t 4.  修改用时\n");
-		printf("\n\t 5.  修改预赛人数 \n");
-		printf("\n\t 6.  修改预赛时间\n");
-		printf("\n\t 7.  有无决赛\n");
-		printf("\n\t 8.  返回上一级\n\n");
-		scanf("%d", &choice);
-		if (choice <= 8 && choice >= 1)
-			break;
-		else
-			printf("\t 您的输入有误，请重新输入\n");
-	}
-	int state;
-	switch (choice)
-	{
-		case 1:
-			printf("\t请修改此项目的名称\n");
-			scanf("%s", &name);
-			strcpy(eve.name, name);
-			state = Event_change(eve, 1);
-			if (state == 1)
-				printf("非法输入");
-			else if (state == 11)
-				printf("不存在此项目");
-			else printf("修改成功");
-			break;
-		case 2:
-			printf("\t请输入此项目类别（男子田赛输入10，径赛输入11，女子田赛输入20，径赛输入21）\n");
-			scanf("%d", &type);
-			eve.type = type;
-			state = Event_change(eve, 3);
-			printf("state值为%d", state);
-			if (state == 3)
-				printf("非法输入");
-			else if (state == 11)
-				printf("不存在此项目");
+		while (1)
+		{
+			clearScreen(400);
+			printf("\n\t\t\t\t\t修改项目属性界面\t\t    \n");
+			printf("\n\t\t\t 1. 修改名字              \t 2. 修改项目类型    \n");
+			printf("\n\t\t\t 3. 修改场地              \t 4. 修改用时  \n");
+			printf("\n\t\t\t 5. 有无决赛              \t 6.  修改预赛时间  \n");
+			printf("\n\t\t\t 7. 返回上一级  \n");
+			scanf("%d", &choice);
+			if (choice <= 8 && choice >= 1)
+				break;
 			else
-				printf("修改成功");
-			break;
-		case 3:
-			printf("\t请修改此项目的场地\n");
-			scanf("%s", &place);
-			strcpy(eve.place, place);
-			state = Event_change(eve, 4);
-			printf("state值为%d", state);
-			if (state == 4)
-				printf("非法输入");
-			else if (state == 11)
-				printf("不存在此项目");
-			else
-				printf("修改成功");
-			break;
-		case 4:
-			printf("\t请修改此项目的用时\n");
-			scanf("%d", &timecost);
-			eve.timecost = timecost;
-			state = Event_change(eve, 5);
-			if (state == 5)
-				printf("非法输入");
-			else if (state == 11)
-				printf("不存在此项目");
-			else
-				printf("修改成功");
-			break;
-		case 5:
-			printf("\t请修改此项目的预赛人数\n");
-			scanf("%d", &maxpeople);
-			eve.maxpeople = maxpeople;
-			state = Event_change(eve, 6);
-			if (state == 6)
-				printf("非法输入");
-			else if (state == 11)
-				printf("不存在此项目");
-			else
-				printf("修改成功");
-			break;
-		case 6:
-			char strtime[50];
-			printf("\t请修改预赛的时间（2010-01-01-10-00）\n");
-			scanf("%s", strtime);
-			struct tm p_stm;
-			p = strtok(strtime, delim);//第一次调用strtok
-			char pp[5][20];
-			ppp = 0;
-			char str[20];
-			int year;
-			int mon;
-			int day;
-			int hour;
-			int min;
-			strcpy(pp[ppp++], p);
-			while (p != NULL)
-			{//当返回值不为NULL时，继续循环
-				//printf("%s\n", p);//输出分解的字符串
-				p = strtok(NULL, delim);//继续调用strtok，分解剩下的字符串
-				strcpy(pp[ppp++], p);
-				if (ppp >= 5)break;
-			}
-			if (ppp == 5)
-			{
-				strcpy(str, pp[0]);
-				year = atoi(str);
-				strcpy(str, pp[1]);
-				mon = atoi(str);
-				strcpy(str, pp[2]);
-				day = atoi(str);
-				strcpy(str, pp[3]);
-				hour = atoi(str);
-				strcpy(str, pp[4]);
-				min = atoi(str);
-				printf("\n%d\t%d\t%d\t%d\t%d\t", year, mon, day, hour, min);
-
-
-				p_stm.tm_year = year - 1900;
-				p_stm.tm_mon = mon - 1;
-				p_stm.tm_mday = day;
-				p_stm.tm_hour = hour;
-				p_stm.tm_min = min;
-				p_stm.tm_sec = 0;
-				p_stm.tm_isdst = -1;
-
-				time_t time = mktime(&p_stm);
-				printf("\n%ld\n", time);
-				eve.time = (long)time;//2018-03-20-1-45
-				printf("%ld", eve.time);
-				state = Event_change(eve, 9);
-				if (state == 9)
+				printf("\t 您的输入有误，请重新输入\n");
+		}
+		int state;
+		switch (choice)
+		{
+			case 1:
+				printf("\t请修改此项目的名称\n");
+				scanf("%s", &name);
+				strcpy(eve.name, name);
+				state = Event_change(eve, 1);
+				if (state == 1)
+					printf("非法输入");
+				else if (state == 11)
+					printf("不存在此项目");
+				else printf("修改成功");
+				break;
+			case 2:
+				printf("\t请输入此项目类别（男子田赛输入10，径赛输入11，女子田赛输入20，径赛输入21）\n");
+				scanf("%d", &type);
+				eve.type = type;
+				state = Event_change(eve, 3);
+				printf("state值为%d", state);
+				if (state == 3)
 					printf("非法输入");
 				else if (state == 11)
 					printf("不存在此项目");
 				else
-				{
 					printf("修改成功");
-					printf("%ld", time);
-				}
-			}
-			else
-			{
-				printf("输入错误");
-			}
-			break;
-		case 7:
-			printf("\t1.有决赛 2.无决赛\n");
-			scanf("%d", &hasFinals);
-			eve.hasFinals = hasFinals;
-			state = Event_change(eve, 7);
-			if (state == 7)
-				printf("非法输入");
-			else if (state == 11)
-				printf("不存在此项目");
-			else if (hasFinals == 0)
-				printf("修改成功");
-			else
-			{
-				int finchoice = 3;
-				while (finchoice != 3)
+				break;
+			case 3:
+				printf("\t请修改此项目的场地\n");
+				scanf("%s", &place);
+				strcpy(eve.place, place);
+				state = Event_change(eve, 4);
+				printf("state值为%d", state);
+				if (state == 4)
+					printf("非法输入");
+				else if (state == 11)
+					printf("不存在此项目");
+				else
+					printf("修改成功");
+				break;
+			case 4:
+				printf("\t请修改此项目的用时\n");
+				scanf("%d", &timecost);
+				eve.timecost = timecost;
+				state = Event_change(eve, 5);
+				if (state == 5)
+					printf("非法输入");
+				else if (state == 11)
+					printf("不存在此项目");
+				else
+					printf("修改成功");
+				break;
+			case 6:
+				char strtime[50];
+				printf("请修改预赛的时间（2010-01-01-01-01）");
+				scanf("%s", &strtime);
+				state = timeTransferToTime_t(strtime);
+				if (state != 0)
 				{
-					while (1)
+					time = state;
+					eve.time = time;//2018-03-20-1-45
+					state = Event_change(eve, 9);
+					if (state == 9)
+						printf("非法输入");
+					else if (state == 11)
+						printf("不存在此项目");
+					else
 					{
-						printf("\n\t 1.  修改决赛人数 \n");
-						printf("\n\t 2.  修改决赛时间 \n");
-						printf("\n\t 3.  返回上一级\n");
-						scanf("%d", finchoice);
-						if (type >= 1 && finchoice <= 3)
-							break;
-						else
-							printf("输入错误，请重新输入");
+						printf("修改成功");
 					}
-					if (finchoice == 1)
+				}
+				else
+				{
+					printf("非法输入");
+				}
+				break;
+			case 5:
+				printf("\t1.有决赛 2.无决赛\n");
+				scanf("%d", &hasFinals);
+				eve.hasFinals = hasFinals;
+				state = Event_change(eve, 7);
+				if (state == 7)
+					printf("非法输入");
+				else if (state == 11)
+					printf("不存在此项目");
+				else if (hasFinals == 0)
+					printf("修改成功");
+				else
+				{
+					int finchoice = 3;
+					do
 					{
-						printf("\t请修改此项目的决赛人数（小于20）\n");
+						while (1)
+						{
+							clearScreen(400);
+							//printf("\n\t 1.  修改决赛人数 \n");
+							printf("\n\t 1.  修改决赛时间 \n");
+							printf("\n\t 2.  返回上一级\n");
+							scanf("%d", &finchoice);
+							if (finchoice >= 1 && finchoice <= 2)
+								break;
+							else
+								printf("输入错误，请重新输入");
+						}
+						/*if (finchoice == 1)
+						{
+						printf("\t请修改此项目的决赛人数（小于20）");
 						scanf("%d", &finNum);
 						eve.finNum = finNum;
 						int state = Event_change(eve, 8);
 						if (state == 8)
-							printf("非法输入");
+						printf("非法输入");
 						else
-							printf("修改成功");
-					}
-					else if (finchoice == 2)
-					{
-						printf("\t请修改此项目的决赛时间\n");
-						scanf("%ld", &etime);
-						eve.etime = etime;
-						int state = Event_change(eve, 10);
-						if (state == 9)
-							printf("非法输入");
-						else
-							printf("修改成功");
-					}
+						printf("修改成功");
+						}
+						else */if (finchoice == 1)
+						{
+							char strtime[50];
+							printf("请修改决赛的时间（2010-01-01-01-01）");
+							scanf("%s", &strtime);
+							state = timeTransferToTime_t(strtime);
+							if (state != 0)
+							{
+								etime = state;
+								eve.etime = etime;//2018-03-20-1-45
+								state = Event_change(eve, 10);
+								if (state == 9)
+									printf("非法输入");
+								else if (state == 11)
+									printf("不存在此项目");
+								else
+								{
+									printf("修改成功");
+								}
+							}
+							else
+							{
+								printf("非法输入");
+							}
+							break;
+						}
+					} while (finchoice != 2);
 				}
-			}
-			break;
-		default:
-			break;
-	}
+				break;
+		}
+	} while (choice != 7);
 	return 0;
 }
 
@@ -228,7 +240,7 @@ int showEventProperty(long id)
 	eve = Event_getinfo(id);
 
 	clearScreen(400);
-	printf("[项目]   项目ID:%d    项目名:%s", eve.id, eve.name);
+	printf("\n\t\t\t\t项目ID:%d    项目名:%s\n", eve.id, eve.name);
 	if (eve.type / 20)
 		printf("女子项目 ");
 	else
@@ -237,7 +249,8 @@ int showEventProperty(long id)
 		printf("径赛 ");
 	else
 		printf("田赛 ");
-	printf("\n\n\t%s (时长:%d分钟)  预赛人数:%d人 ", eve.place, eve.timecost, eve.maxpeople);
+	printf("%s", eve.place);
+	printf("\n\t(时长:%d分钟)  预赛人数:%d人", eve.timecost, eve.maxpeople);
 	//eve.time = 1521421395;
 	if (eve.time == 0)
 		printf(" 比赛时间未定");
@@ -248,11 +261,11 @@ int showEventProperty(long id)
 		struct tm *ttime;
 		ttime = localtime(&tt);
 		strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
-		printf(" 预赛时间:%d年%d月%d日  %02d:%02d ", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
+		printf(" \t预赛时间:%d年%d月%d日  %02d:%02d ", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
 	}
 	if (eve.hasFinals)
 	{
-		printf("\n\t有决赛 (时长:%d分钟) 决赛人数:%d人", eve.timecost, eve.finNum);
+		printf("\n\t有决赛 (时长:%d分钟)  决赛人数:%d人", eve.timecost, eve.finNum);
 		//eve.etime = 1521421395;
 		if (eve.etime == 0)
 			printf(" 比赛时间未定\n");
@@ -263,7 +276,7 @@ int showEventProperty(long id)
 			struct tm *ttime;
 			ttime = localtime(&tt);
 			strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
-			printf(" 决赛时间:%d年%d月%d日  %02d:%02d \n", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
+			printf("\t决赛时间:%d年%d月%d日  %02d:%02d \n", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
 
 		}
 	}
@@ -279,10 +292,15 @@ int showAllEventID()		//显示目前所有项目ID
 	int i;
 	SportsEvent *evo = (SportsEvent*)malloc(sys_info.eve * sizeof(SportsEvent));
 	Event_getlist(evo);
-	printf("\t目前所有项目\n");
+	printf("\n\t\t\t目前所有项目\t\t    \n");
 	for (i = 0; i < sys_info.eve; i++)
 	{
-		printf("%ld,%s, 预赛人数:%d\n", evo[i].id, evo[i].name, evo[i].maxpeople);
+		printf("\n\t\t\t%ld  %s  ", evo[i].id, evo[i].name);
+		if (evo[i].type / 10 == 1)
+			printf("男子 ");
+		else
+			printf("女子 ");
+		printf("预赛人数:%d\n", evo[i].maxpeople);
 	}
 	free(evo);
 	return 0;
@@ -294,12 +312,60 @@ int EveSporterManage(long eveid)
 {
 	int choice;
 	int ret;
+	int i;
 	while (1)
 	{
 
 		while (1)
 		{
 			clearScreen(400);
+			SportsEvent eve = Event_getinfo(eveid);
+			printf("目前预赛人数 ：%d\n", eve.maxpeople);
+			for (i = 0; i < eve.maxpeople; i++)
+			{
+				printf("%d\t  ", eve.prePerson[i].id);
+				if (eve.type % 2) //径赛
+				{
+
+					char sc[20] = "";
+					//printf(" [分数:%d] ", evo[o].prePerson[p].score);
+					scoreToChar(eve.prePerson[i].score, sc);
+					printf(" 成绩:%s  \n", sc);
+				}
+				else
+				{
+					if (eve.prePerson[i].score > 1000)
+						printf(" 成绩:%d m\n ", eve.prePerson[i].score / 1000);
+
+					printf(" 成绩:%d cm\n", eve.prePerson[i].score % 1000);
+				}
+			}
+
+			if (eve.hasFinals)
+			{
+
+				printf("目前决赛人数 ：%d\n", eve.finNum);
+
+				for (i = 0; i < eve.finNum; i++)
+				{
+					printf("%d\t  ", eve.finPerson[i].id);
+					if (eve.type % 2) //径赛
+					{
+
+						char sc[20] = "";
+						//printf(" [分数:%d] ", evo[o].prePerson[p].score);
+						scoreToChar(eve.finPerson[i].score, sc);
+						printf(" 成绩:%s \n", sc);
+					}
+					else
+					{
+						if (eve.finPerson[i].score > 1000)
+							printf(" 成绩:%d m \n", eve.finPerson[i].score / 1000);
+
+						printf(" 成绩:%d cm \n", eve.finPerson[i].score % 1000);
+					}
+				}
+			}
 			printf("\n\t管理运动员界面\n");
 			printf("\n\t\t 1. 查看预赛情况      \t 2. 增加预赛运动员 \n");
 			printf("\n\t\t 3. 删除预赛运动员   \t 4. 登记预赛成绩 \n");
@@ -317,6 +383,7 @@ int EveSporterManage(long eveid)
 		switch (choice)
 		{
 			case 1:
+				fflush(stdin);
 				rank = 0;
 				spEve = Event_getinfo(eveid);
 				qsort(spEve.prePerson, 100, sizeof(Participant), cmp);
@@ -359,27 +426,31 @@ int EveSporterManage(long eveid)
 				}
 				if (rank == 0)
 					printf("\n  暂无预赛成绩\n");
+
 				fflush(stdin);
 				puts("\n\n按回车键返回上一步");
 				getchar();
 				break;
 			case 2:
-				//long peoid;
+				fflush(stdin);
 				printf("\n\t请输入运动员ID：");
 				scanf("%ld", &peoid);
 				if (Person_getinfo(peoid).id == 0)
 					puts("\n  抱歉，暂无该用户\n");
-				ret = Event_inc(eveid, peoid, 0);
-				if (ret == 0)
-					puts("\n  该运动员报名预赛已经成功\n");
-				else if (ret == 3)
-					puts("\n  该运动员之前已经成功报名预赛啦\n");
 				else
-					puts("\n  该运动员报名预赛失败\n");
-				Sleep(1000);
+				{
+					ret = Event_inc(eveid, peoid, 0);
+					if (ret == 0)
+						puts("\n  该运动员报名预赛已经成功\n");
+					else if (ret == 3)
+						puts("\n  该运动员之前已经成功报名预赛啦\n");
+					else
+						puts("\n  该运动员报名预赛失败\n");
+				}
+				Sleep(500);
 				break;
 			case 3:
-				//long peoid;
+				fflush(stdin);
 				printf("\n\t请输入运动员ID：");
 				scanf("%ld", &peoid);
 				if (Person_getinfo(peoid).id == 0)
@@ -398,9 +469,10 @@ int EveSporterManage(long eveid)
 					else
 						puts("\n  删除运动员失败\n");
 				}
-				Sleep(1000);
+				Sleep(500);
 				break;
 			case 4:
+				fflush(stdin);
 				printf("\n\t请输入运动员ID：");
 				scanf("%ld", &peoid);
 				if (Person_getinfo(peoid).id == 0)
@@ -443,6 +515,7 @@ int EveSporterManage(long eveid)
 				}
 				break;
 			case 5:
+				fflush(stdin);
 				spEve = Event_getinfo(eveid);
 				qsort(spEve.finPerson, 20, sizeof(Participant), cmp);
 				rank = 0;
@@ -472,7 +545,7 @@ int EveSporterManage(long eveid)
 						scoreToChar(spEve.prePerson[p].score, s);
 						printf("  成绩:%s ", s);
 						ret = Event_inc(eveid, peoid, 1);
-						printf("返回值%d",ret );
+						//printf("返回值%d",ret );
 						if (ret == 0)
 							printf("该名运动员成功进入决赛");
 						else
@@ -521,6 +594,7 @@ int EveSporterManage(long eveid)
 				getchar();
 				break;
 			case 6:
+				fflush(stdin);
 				spEve = Event_getinfo(eveid);
 				qsort(spEve.finPerson, 20, sizeof(Participant), cmp);
 
@@ -569,7 +643,7 @@ int EveSporterManage(long eveid)
 				getchar();
 				break;
 			case 7:
-				//long peoid;
+				fflush(stdin);
 				printf("\n\t请输入运动员ID：");
 				scanf("%ld", &peoid);
 				if (Person_getinfo(peoid).id == 0)
@@ -578,10 +652,10 @@ int EveSporterManage(long eveid)
 					puts("\n  该运动员已经成功进入决赛\n");
 				else
 					puts("\n  操作失败\n");
-				Sleep(1000);
+				Sleep(500);
 				break;
 			case 8:
-				//long peoid;
+				fflush(stdin);
 				printf("\n\t请输入运动员ID：");
 				scanf("%ld", &peoid);
 				if (Person_getinfo(peoid).id == 0)
@@ -604,7 +678,7 @@ int EveSporterManage(long eveid)
 				Sleep(100);
 				break;
 			case 9:
-				//long peoid;
+				fflush(stdin);
 				printf("\n\t请输入运动员ID：");
 				scanf("%ld", &peoid);
 				if (Person_getinfo(peoid).id == 0)
@@ -656,12 +730,12 @@ int EveSporterManage(long eveid)
 }
 
 //修改项目
-int changeEventInfo()			
+int changeEventInfo()
 {
 	clearScreen(400);
 	showAllEventID();
 	long id;
-	printf("\n\t请输入要修改项目的ID:\n");
+	printf("\n\n\t\t请输入要修改项目的ID:\n");
 	scanf("%ld", &id);
 	int state = Event_had(id);
 	if (state == 1)
@@ -673,45 +747,7 @@ int changeEventInfo()
 			eve = Event_getinfo(id);
 
 			clearScreen(400);
-			printf("[项目]   项目ID:%d    项目名:%s", eve.id, eve.name);
-			if (eve.type / 20)
-				printf("女子项目 ");
-			else
-				printf("男子项目 ");
-			if (eve.type % 2)
-				printf("径赛 ");
-			else
-				printf("田赛 ");
-			printf("\n\n\t%s (时长:%d分钟)  预赛人数:%d人 ", eve.place, eve.timecost, eve.maxpeople);
-			//eve.time = 1521421395;
-			if (eve.time == 0)
-				printf(" 比赛时间未定");
-			else
-			{
-				time_t  tt = (time_t)eve.time;   //假定时间
-				char now[64];
-				struct tm *ttime;
-				ttime = localtime(&tt);
-				strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
-				printf(" 预赛时间:%d年%d月%d日  %02d:%02d \n", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
-			}
-			if (eve.hasFinals)
-			{
-				printf("\n\t有决赛 (时长:%d分钟) 决赛人数:%d人", eve.timecost, eve.finNum);
-				//eve.etime = 1521421395;
-				if (eve.etime == 0)
-					printf(" 比赛时间未定");
-				else
-				{
-					time_t  tt = (time_t)eve.etime;   //假定时间
-					char now[64];
-					struct tm *ttime;
-					ttime = localtime(&tt);
-					strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
-					printf(" 决赛时间:%d年%d月%d日  %02d:%02d \n", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
-
-				}
-			}
+			showEventProperty(id);
 
 			while (1)
 			{
@@ -738,6 +774,342 @@ int changeEventInfo()
 	return 0;
 }
 
+int ifusechangdi(SportsEvent *evo, char *changdi, long time)
+{//是否占用场地  组，场地，开始时间
+	for (int i = 0; i < sys_info.eve; i++)
+	{
+		if (strcmp(evo[i].place, changdi))
+		{
+			if (time >= evo[i].time && time <= evo[i].time + evo[i].timecost)return 1;
+			if (time >= evo[i].etime && time <= evo[i].etime + evo[i].timecost)return 1;
+		}
+	}
+	return 0;
+}
+void timetochar(long time)
+{
+	time_t  tt = (time_t)time;   //假定时间
+	char now[64];
+	struct tm *ttime;
+	ttime = localtime(&tt);
+	strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
+	printf("%d年%d月%d日  %02d:%02d ", ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min);
+}
+int creatTableMenu()
+{
+	clearScreen(1000);
+	int i, dmorn, mnum, dafte, anum, setnum = 0, numplace = 0, congtu, p, c, x; char strtime[50] = ""; long state = 0; changdi cd; cd.num = 0;
+	SportsEvent *evo = (SportsEvent*)malloc(sys_info.eve * sizeof(SportsEvent));
+	Event_getlist(evo);
+	printf("\t目前所有项目\t\t    \n");
+	int ii = sys_info.eve;//预赛加决赛数
+	for (i = 0; i < sys_info.eve; i++)
+	{
+		printf("\n\t%ld,%s, 报名人数:%d\n", evo[i].id, evo[i].name, evo[i].maxpeople);
+		evo[i].time = evo[i].etime = 0;
+		if (evo[i].hasFinals)ii++;
+		strcpy(cd.name[cd.num], evo[i].place);
+		cd.time[cd.num++] = 0;
+	}
+
+	while (!state)
+	{
+		printf("\n\n请输入比赛日期（如2010-01-01）：");
+		scanf("%s", &strtime);
+		strcat(strtime, "-0-0");
+		state = timeTransferToTime_t(strtime);
+		if (!state)printf("，请重新输入");
+	}
+
+	while (setnum < ii)
+	{//设置好的少于所有
+		//printf("\n%d",ii);
+		for (i = 0; i < cd.num; i++)cd.time[i] = state + 8 * 60 * 60;//初始化场地时间
+		//8:00-11:00 14:00-17:00
+		//mnum=anum=0;//早上个数，下午个数
+		for (i = 0; i < sys_info.eve; i += 2)
+		{//早上
+			if (!evo[i].time)
+			{//判断预赛头
+				for (p = 0; p<cd.num; p++)
+				{//轮循场地
+					//printf("\n%s\t%s",evo[i].place,cd.name[p]);
+					if (!strcmp(evo[i].place, cd.name[p]))
+					{
+						if (cd.time[p]>(state + 11 * 60 * 60))break;
+						//冲突判断
+						congtu = 0;
+						for (c = 0; c < sys_info.eve; c++)
+						{//预赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].time)continue;//还没安排
+							for (x = 0; x < evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (evo[c].maxpeople<4)continue;//比赛被取消
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 0))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].time && cd.time[p] < (evo[c].time + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+						}
+						if (!congtu)//还不冲突就检查决赛
+						for (c = 0; c < sys_info.eve; c++)
+						{//决赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].hasFinals)continue;//没有决赛
+							if (!evo[c].etime)continue;//还没安排
+							for (x = 0; x<evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 1))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].etime && cd.time[p] < (evo[c].etime + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+						}
+						if (congtu)continue;
+						//
+						evo[i].time = cd.time[p];
+						cd.time[p] += evo[i].timecost * 60;
+						printf("\n[第一轮]%s\t%s\t用时：%d分钟\t", evo[i].name, evo[i].place, evo[i].timecost);
+						timetochar(evo[i].time);
+						printf("\n");
+						setnum++;
+						break;
+					}
+				}
+			}
+			//判断预赛尾
+		}
+		for (i = 0; i < sys_info.eve; i++)
+		{//早上
+			if (!evo[i].etime && evo[i].hasFinals)
+			{//判断决赛头
+				for (p = 0; p<cd.num; p++)
+				{
+					//printf("\n%s\t%s",evo[i].place,cd.name[p]);
+					if (!strcmp(evo[i].place, cd.name[p]))
+					{
+						//if(!strcmp(evo[i].name,"女子100米"))printf("  %d\t%d",cd.time[p],evo[i].time+3*60*60);
+						if (!evo[i].time)break;
+						if (cd.time[p] <= (evo[i].time + 3 * 60 * 60))break;
+						if (cd.time[p]>(state + 11 * 60 * 60))break;
+						//冲突判断
+						congtu = 0;
+						for (c = 0; c < sys_info.eve; c++)
+						{//预赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].time)continue;//还没安排
+							for (x = 0; x < evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (evo[c].maxpeople<4)continue;//比赛被取消
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 0))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].time && cd.time[p] < (evo[c].time + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+						}
+						if (!congtu)//还不冲突就检查决赛
+						for (c = 0; c < sys_info.eve; c++)
+						{//决赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].hasFinals)continue;//没有决赛
+							if (!evo[c].etime)continue;//还没安排
+							for (x = 0; x<evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 1))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].etime && cd.time[p] < (evo[c].etime + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+						}
+						if (congtu)continue;
+						//
+						evo[i].etime = cd.time[p];
+						cd.time[p] += evo[i].timecost * 60;
+						printf("\n[决赛]%s\t%s\t用时：%d分钟\t", evo[i].name, evo[i].place, evo[i].timecost);
+						timetochar(evo[i].etime);
+						printf("\n");
+						setnum++;
+						break;
+					}
+				}
+			}
+			//判断决赛尾
+		}
+		for (i = 0; i < cd.num; i++)cd.time[i] = state + 14 * 60 * 60;//初始化场地时间
+		for (i = 1; i < sys_info.eve; i += 2)
+		{//下午
+			if (!evo[i].time)
+			{//判断预赛头
+				for (p = 0; p<cd.num; p++)
+				{
+					if (!strcmp(evo[i].place, cd.name[p]))
+					{
+						if (cd.time[p]>(state + 17 * 60 * 60))break;
+						//冲突判断
+						congtu = 0;
+						for (c = 0; c < sys_info.eve; c++)
+						{//预赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].time)continue;//还没安排
+							for (x = 0; x < evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (evo[c].maxpeople<4)continue;//比赛被取消
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 0))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].time && cd.time[p] < (evo[c].time + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+						}
+						if (!congtu)//还不冲突就检查决赛
+						for (c = 0; c < sys_info.eve; c++)
+						{//决赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].hasFinals)continue;//没有决赛
+							if (!evo[c].etime)continue;//还没安排
+							for (x = 0; x<evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 1))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].etime && cd.time[p] < (evo[c].etime + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+						}
+						if (congtu)continue;
+						//
+						evo[i].time = cd.time[p];
+						cd.time[p] += evo[i].timecost * 60;
+						printf("\n[第一轮]%s\t%s\t用时：%d分钟\t", evo[i].name, evo[i].place, evo[i].timecost);
+						timetochar(evo[i].time);
+						printf("\n");
+						setnum++;
+						break;
+					}
+				}
+			}
+			//判断预赛尾
+		}
+		for (i = 0; i < sys_info.eve; i++)
+		{//下午
+			if (!evo[i].etime && evo[i].hasFinals)
+			{//判断决赛头
+				for (p = 0; p<cd.num; p++)
+				{
+					if (!strcmp(evo[i].place, cd.name[p]))
+					{
+						//timetochar(cd.time[p]);timetochar(evo[i].time);
+						if (!evo[i].time)break;
+						if (cd.time[p] <= (evo[i].time + 3 * 60 * 60))break;
+						if (cd.time[p]>(state + 17 * 60 * 60))break;
+						//冲突判断
+						congtu = 0;
+						for (c = 0; c < sys_info.eve; c++)
+						{//预赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].time)continue;//还没安排
+							for (x = 0; x < evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (evo[c].maxpeople<4)continue;//比赛被取消
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 0))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].time && cd.time[p] < (evo[c].time + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+							if (!evo[c].etime)continue;
+						}
+						if (!congtu)//还不冲突就检查决赛
+						for (c = 0; c < sys_info.eve; c++)
+						{//决赛
+							if (evo[c].id == evo[i].id)continue;//相同跳过
+							if (!evo[c].hasFinals)continue;//没有决赛
+							if (!evo[c].etime)continue;//还没安排
+							for (x = 0; x<evo[c].maxpeople; x++)
+							{
+								if (!evo[c].prePerson[x].id)continue;
+								if (Event_hasPer(evo[i], evo[c].prePerson[x].id, 1))
+								{//项目有同一个人
+									if (cd.time[p]>evo[c].etime && cd.time[p] < (evo[c].etime + evo[c].timecost))
+									{
+										//时间冲突
+										congtu = 1;
+										break;
+									}
+								}
+							}
+							if (!evo[c].etime)continue;
+						}
+						if (congtu)continue;
+						//
+						evo[i].etime = cd.time[p];
+						cd.time[p] += evo[i].timecost * 60;
+						printf("\n[决赛]%s\t%s\t用时：%d分钟\t", evo[i].name, evo[i].place, evo[i].timecost);
+						timetochar(evo[i].etime);
+						printf("\n");
+						setnum++;
+						break;
+					}
+				}
+			}
+			//判断决赛尾
+		}
+		state += 24 * 60 * 60;//下一天
+	}
+
+	//printf("\n%ld\n",state);
+	FILE *fp;
+	fp = fopen("data\\eveinfo.txt", "w");
+	fwrite(evo, sizeof(SportsEvent), sys_info.eve, fp);
+	fclose(fp);
+	free(evo);
+	fflush(stdin);
+	getchar();
+	toTableMenu();
+	return 0;
+}
+
+
 //主菜单
 int adminMenu()
 {
@@ -747,14 +1119,13 @@ int adminMenu()
 
 		while (1)
 		{
-			clearScreen(1000);
+			clearScreen(500);
 			printf("\t\t\t *************************************************** \n");
 			printf("\n\t\t\t\t\t汕头大学校运会管理系统\t\t    \n");
 			printf("\n\t\t\t *************************************************** \n\n");
 			printf("\n\t\t\t 1. 账号管理               \t 2. 通知栏管理    \n");
 			printf("\n\t\t\t 3. 项目管理            \t 4. 组织管理  \n");
 			printf("\n\t\t\t 5. 生成秩序册		  \t 6. 退出登录  \n");
-			printf("\n\t\t\t 7. 退出系统\n");
 
 			if (scanf("%d", &choice) == 1 && (choice <= 7 && choice >= 1))
 				break;
@@ -764,17 +1135,17 @@ int adminMenu()
 		switch (choice)
 		{
 			case 1:
+				fflush(stdin);
 				int type;
 				do
 				{
 					while (1)
 					{
 						clearScreen(400);
-						printf("\n\t 1.  查询已注册用户 \n");
-						printf("\n\t 2.  重置用户密码 \n");
-						printf("\n\t 3.  删除用户账号 \n");
-						printf("\n\t 4.  重置管理员密码 \n");
-						printf("\n\t 5.  返回上一级\n\n");
+						printf("\n\t\t\t\t\t\t管理员界面\t\t    \n");
+						printf("\n\t\t\t 1. 查询已注册用户      \t 2. 重置用户密码    \n");
+						printf("\n\t\t\t 3. 删除用户账号        \t 4. 重置管理员密码  \n");
+						printf("\n\t\t\t 5. 返回上一级\n");
 
 						if (scanf("%d", &type) == 1 && (type <= 5 && type >= 1))
 							break;
@@ -784,7 +1155,9 @@ int adminMenu()
 					if (type == 1)
 					{
 						Person_list();
-						Sleep(2000);
+						fflush(stdin);
+						printf("\n  按回车键返回上一级");
+						getchar();
 					}
 					else if (type == 2)
 					{
@@ -801,6 +1174,9 @@ int adminMenu()
 						if (state == 0) printf("\n\t修改成功！\n");
 						else if (state == 7) printf("\n\t不存在此账号\n");
 						else if (state == 9) printf("\n\t打开文件失败\n");
+						fflush(stdin);
+						printf("\n  按回车键返回上一级");
+						getchar();
 					}
 					else if (type == 3)
 					{
@@ -813,39 +1189,77 @@ int adminMenu()
 						else if (state == 1) printf("\n\t不能删除id为0的用户\n");
 						else if (state == 2) printf("\n\t此用户不存在\n");
 						else if (state == 3) printf("\n\t成员为0，删除失败！\n");
+						fflush(stdin);
+						printf("\n  按回车键返回上一级");
+						getchar();
 					}
 					else if (type == 4)
 					{
 						PerInfo admin;
-						printf("\n\t 请重置密码 \n");
-						char password1[20];
-						inputPasswd(password1);
-						printf("\n\t 请再次输入密码 \n");
-						char password2[20];
-						inputPasswd(password2);
-						if (strcmp(password1, password2) == 0)
+						char oldpassword[20];
+						int islogin = 0;
+						int	count=0;
+						int reinput=0;
+						while (islogin == 0)
 						{
-							int state = sys_changepsw(password1);
-							if (state == 0) printf("\n\t修改成功！\n");
-							else if (state == 1) printf("\n\t非法字符\n");
+							printf("\n\t 请输入原始密码 \n");
+							inputPasswd(oldpassword);
+							if (strcmp(oldpassword, sys_info.password) == 0)
+							{
+								islogin = 1;
+								printf("\n\t 验证成功，请重置密码 \n");
+								char password1[20];
+								inputPasswd(password1);
+								printf("\n\t 请再次输入密码 \n");
+								char password2[20];
+								inputPasswd(password2);
+								if (strcmp(password1, password2) == 0)
+								{
+									if (strcmp(password1, oldpassword) != 0)
+									{
+										int state = sys_changepsw(password1);
+										if (state == 0) printf("\n\t修改成功！\n");
+										else if (state == 1) printf("\n\t非法字符\n");
+									}
+									else
+									{
+										printf("\n\t与旧密码相同，修改失败\n\t");
+									}
+								}
+								else
+								{
+									printf("\n\t前后密码不一致\n");
+									count++;
+								}
+							}
+							else {
+								count++;
+								printf("\n\t原始密码错误,需要重新输入吗? 1.是 2.否\n");
+								if (reinput == 2)
+									islogin = 1;
+								if (count == 3)
+								{
+									printf("\n\t你已经输入错误三次了\n\t");
+									break;
+								}
+							}
 						}
-						else
-						{
-							printf("\n\t前后密码不一致\n");
-						}
+						fflush(stdin);
+						printf("\n  按回车键返回上一级");
+						getchar();
 					}
 				} while (type != 5);
 				break;
 			case 2:
+				fflush(stdin);
 				do
 				{
 					while (1)
 					{
 						clearScreen(400);
-						printf("\n\t 1.  发布个人通知 \n");
-						printf("\n\t 2.  发布项目通知 \n");
-						printf("\n\t 3.  发布公告 \n");
-						printf("\n\t 4.  返回上一级 \n");
+						printf("\n\t\t\t\t\t通知栏管理界面\t\t    \n");
+						printf("\n\t\t\t 1. 发布个人通知               \t 2. 发布项目通知    \n");
+						printf("\n\t\t\t 3. 发布公告            \t 4. 返回上一级  \n");
 						if (scanf("%d", &type) == 1 && (type <= 4 && type >= 1))
 							break;
 						else
@@ -872,10 +1286,14 @@ int adminMenu()
 						{
 							printf("\n\t输入id非法\n");
 						}
+						fflush(stdin);
+						printf("\n  按回车键返回上一级");
+						getchar();
 					}
 					else if (type == 2)
 					{
 						long id;
+						showAllEventID();
 						printf("\n\t请输入项目的id(1000-9999)\n");
 						scanf("%ld", &id);
 						if (id >= 1000 && id <= 9999)
@@ -885,19 +1303,19 @@ int adminMenu()
 							{
 								int match = 0, i = 0;
 								printf("\n\t请选择此时的比赛阶段 1.预赛 2.决赛\n");
-								scanf("%d", match);
+								scanf("%d", &match);
 								SportsEvent eve;
 								eve = Event_getinfo(id);
 								if (match == 1)
 								{
 									long prePersonid[100];
-									for (int i = 0; i <= 100; i++)
+									for (int i = 0; i < 100; i++)
 										prePersonid[i] = eve.prePerson[i].id;
 									printf("\n\t请输入通知\n");
-									char* msg;
+									char msg[300];
 									scanf("%s", &msg);
 									int state;
-									for (int i = 0; i <= 100; i++)
+									for (int i = 0; i < 100; i++)
 									{
 										state = Person_notice(prePersonid[i], msg);
 									}
@@ -912,13 +1330,13 @@ int adminMenu()
 									if (match == 2)
 									{
 										long finPersonid[20];
-										for (int i = 0; i <= 20; i++)
+										for (int i = 0; i < 20; i++)
 											finPersonid[i] = eve.finPerson[i].id;
 										printf("\n\t请输入通知\n");
 										char* msg;
 										scanf("%s", &msg);
 										int state;
-										for (int i = 0; i <= 20; i++)
+										for (int i = 0; i < 20; i++)
 										{
 											state = Person_notice(finPersonid[i], msg);
 										}
@@ -936,6 +1354,9 @@ int adminMenu()
 						{
 							printf("\n\t输入id非法\n");
 						}
+						fflush(stdin);
+						printf("\n  按回车键返回上一级");
+						getchar();
 					}
 					else if (type == 3)
 					{
@@ -948,22 +1369,25 @@ int adminMenu()
 						{
 							printf("\n\t打开文件失败\n");
 						}
+						fflush(stdin);
+						printf("\n  按回车键返回上一级");
+						getchar();
 					}
+
 				} while (type != 4);
 				break;
 			case 3:
+				fflush(stdin);
 				do
 				{
 					while (1)
 					{
 						clearScreen(400);
 						showAllEventID();
-						printf("\n\t 1.  修改项目 \n");
-						printf("\n\t 2.  增加项目 \n");
-						printf("\n\t 3.  减少项目\n");
-						printf("\n\t 4.  锁定报名 \n");
-						printf("\n\t 5.  开放报名 \n");
-						printf("\n\t 6.  返回上一级\n\n");
+						printf("\n\t\t\t\t\t项目管理界面\t\t    \n");
+						printf("\n\t\t\t 1. 修改项目            \t 2. 增加项目    \n");
+						printf("\n\t\t\t 3. 减少项目            \t 4. 锁定报名  \n");
+						printf("\n\t\t\t 5. 开放报名            \t 6. 返回上一级  \n");
 						scanf("%d", &type);
 						if (type <= 6 && type >= 1)
 							break;
@@ -990,7 +1414,7 @@ int adminMenu()
 						scanf("%s", &place);
 						printf("\t请输入此项目的用时\n");
 						scanf("%d", &timecost);
-						printf("\t有无决赛（1.有 2.无）\n");
+						printf("\t有无决赛（0.无 1.有）\n");
 						scanf("%d", &hasFinals);
 						SportsEvent msg;
 						strcpy(msg.name, name);
@@ -1007,7 +1431,7 @@ int adminMenu()
 							printf("\n\t场地输入错误\n");
 						else if (state == 5)
 							printf("\n\t用时输入错误\n");
-						if (state == 7)
+						else if (state == 7)
 							printf("\n\t有无决赛输入错误\n");
 						else if (state == 10)
 							printf("\n\t太多项目\n");
@@ -1026,40 +1450,44 @@ int adminMenu()
 							printf("\n此项目不存在\t\n");
 						else if (state == 3)
 							printf("\n\t删除失败\n");
+						Sleep(1000);
 					}
 					else if (type == 4)
 					{
 						sys_changecj(0);
 						printf("\n\t报名已锁定\n");
+						Sleep(1000);
 					}
 					else if (type == 5)
 					{
 						sys_changecj(1);
 						printf("\n\t报名已开放\n");
+						Sleep(1000);
 					}
+
 				} while (type != 6);
 				break;
 			case 4:
+				fflush(stdin);
 				do
 				{
 					while (1)
 					{
 						clearScreen(400);
-						printf("目前院\n");
+						printf("\n\t\t\t\t\t目前院\t\t    \n");
 						for (int i = 0; i < sys_info.numyuan; i++)
 						{
-							printf("\t%s\n", sys_info.yuan[i]);
+							printf("\n\t\t\t%s\n", sys_info.yuan[i]);
 						}
-						printf("目前系\n");
+						printf("\n\t\t\t\t\t目前系\n");
 						for (int i = 0; i < sys_info.numxi; i++)
 						{
-							printf("\t%s\n", sys_info.xi[i]);
+							printf("\n\t\t\t%s\n", sys_info.xi[i]);
 						}
-						printf("\n\t 1.  增加院 \n");
-						printf("\n\t 2.  减少院 \n");
-						printf("\n\t 3.  增加系\n");
-						printf("\n\t 4.  减少系 \n");
-						printf("\n\t 5.  返回上一级\n\n");
+						printf("\n\t\t\t\t\t组织管理界面\t\t    \n");
+						printf("\n\t\t\t 1. 增加院            \t 2. 减少院    \n");
+						printf("\n\t\t\t 3. 增加系            \t 4. 减少系  \n");
+						printf("\n\t\t\t 5. 返回上一级");
 						scanf("%d", &type);
 						if (type <= 5 && type >= 1)
 							break;
@@ -1070,7 +1498,7 @@ int adminMenu()
 					{
 						printf("\n\t请输入该院的名称\n");
 						char yuan[20];
-						scanf("%s", yuan);
+						scanf("%s", &yuan);
 						int state = sys_incyuan(yuan);
 						if (state == 0)
 							printf("\n\t增加成功\n");
@@ -1085,7 +1513,7 @@ int adminMenu()
 					{
 						printf("\n\t请输入该院的名称\n");
 						char yuan[20];
-						scanf("%s", yuan);
+						scanf("%s", &yuan);
 						int state = sys_decyuan(yuan);
 						if (state == 0)
 							printf("\n\t减少成功\n");
@@ -1100,7 +1528,7 @@ int adminMenu()
 					{
 						printf("\n\t请输入该系的名称\n");
 						char xi[20];
-						scanf("%s", xi);
+						scanf("%s", &xi);
 						int state = sys_incxi(xi);
 						if (state == 0)
 							printf("\n\t增加成功\n");
@@ -1115,7 +1543,7 @@ int adminMenu()
 					{
 						printf("\n\t请输入该系的名称\n");
 						char xi[20];
-						scanf("%s", xi);
+						scanf("%s", &xi);
 						int state = sys_decxi(xi);
 						if (state == 0)
 							printf("\n\t减少成功\n");
@@ -1126,10 +1554,14 @@ int adminMenu()
 						else if (state == 3)
 							printf("\n\t输入错误\n");
 					}
+
 				} while (type != 5);
 				break;
 			case 5:
-
+				creatTableMenu();
+				fflush(stdin);
+				printf("\n  按回车键返回上一级");
+				getchar();
 				break;
 			case 6:
 				return -1;

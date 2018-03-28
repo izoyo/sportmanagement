@@ -150,7 +150,7 @@ int Person_change(PerInfo msg,int type){
     fclose(fp);
     for(o = 0; o < i; o++){
 		if(evo[o].id==msg.id){
-			puts(evo[o].name);
+			//puts(evo[o].name);
 			switch(type){
 				case 1:	
 					strcpy(evo[o].name,msg.name);
@@ -166,7 +166,7 @@ int Person_change(PerInfo msg,int type){
 					break;
 				case 6:
 					strcpy(evo[o].password,msg.password);
-					puts(evo[o].password);
+					//puts(evo[o].password);
 					break;
 			}
 			break;
@@ -237,7 +237,7 @@ void Person_mynotice(){//获取成员通知例子，请注意有没有满20条
 			struct tm *ttime;
 			ttime = localtime(&tt);
 			strftime(now, 64, "%Y%m%d %H:%M:%S", ttime);
-			printf("\t\t\t\t%d年%d月%d日  %02d:%02d —— %s\n",ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min,msn[i].msg);
+			printf("\t\t\t\t公告>%d年%d月%d日  %02d:%02d —— %s\n",ttime->tm_year + 1900, ttime->tm_mon + 1, ttime->tm_mday, ttime->tm_hour, ttime->tm_min,msn[i].msg);
 		}
 	}
 	

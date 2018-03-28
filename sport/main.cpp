@@ -64,17 +64,20 @@ void datain(){
 	strcpy(eve.name,"跑步");
 	eve.type=11;
 	strcpy(eve.place,"操场");
-	eve.timecost=60;
+	eve.timecost=60;eve.time=1231231;eve.etime=1239120;
+
 	eve.hasFinals=1;
-	i=Event_create(eve);
+	eve.id=Event_create(eve);
+	Event_change(eve,9);Event_change(eve,10);
 	printf("%d\n",i);
 	strcpy(eve.name,"跳远");
 	eve.type=10;
 	strcpy(eve.place,"操场");
-	eve.timecost=60;
+	eve.timecost=60;eve.time=1239;eve.etime=0;
 	eve.hasFinals=0;
-	i=Event_create(eve);
-	
+	eve.id=Event_create(eve);
+	i=Event_change(eve,9);Event_change(eve,10);
+	printf("-%d\n",i);
 	
 	
 	Event_inc(1041,2010101010,0);
@@ -115,7 +118,7 @@ void datain(){
 	Event_inc(1467,2010101013,0);*/
 	Person_list();
 	Event_list();
-	eve=Event_getinfo(1041);
+	eve=Event_getinfo(9500);
 	printf("%d\n",eve.finNum);
 	printf("%d\n预赛：\n",eve.maxpeople);
 	for(i=0;i<eve.maxpeople;i++)
@@ -126,15 +129,18 @@ void datain(){
 	printf("%d\n",i);
 
 }
-extern int toSituationMenu();
+extern int creatTableMenu();
 int main()
 {
 	sys_init();
 	//Person_notice(10000,"这是一条测试");
 	//Person_notice(10000,"这是第二条测试");
+	//Event_dec(1041, 2010101010, 1);
 	//datain();
 	//getchar();
 	//toSituationMenu();
 	mainMenu();
+	//creatTableMenu();
+	//changeEventInfo();
 	return 0;
 }

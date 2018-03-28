@@ -76,6 +76,20 @@ int Event_hadname(char* ming){
 		else 
 			return 0;
 }
+int Event_hasPer(SportsEvent a,long id,int isfinal){
+	if(isfinal){
+		for(int i=0;i<a.finNum;i++){
+			if(a.finPerson[i].id==id)return 1;
+		}
+		return 0;
+	}else{
+	for(int i=0;i<a.maxpeople;i++){
+		if(a.prePerson[i].id==id)return 1;
+	}
+	return 0;
+	}
+}
+
 int Event_inc(long eveid,long peoid,int type){
 	if(Event_had(eveid)==0)return 11;//不存在项目
 	FILE * fp= fopen("data\\eveinfo.txt", "r");
@@ -131,42 +145,41 @@ int Event_inc(long eveid,long peoid,int type){
 }
 int Event_dec(long eveid,long peoid,int type){
 	if(Event_had(eveid)==0)return 11;//不存在项目
+	int i=sys_info.eve;//项目数
+	if(i==0) return 2;//0项目
 	FILE * fp= fopen("data\\eveinfo.txt", "r");
 	if(fp==NULL) return 1;//打开文件失败
-    int i=sys_info.eve;//项目数
-	if(i==0) return 2;//0项目
 	SportsEvent* evo,msg;//所有项目，单个项目
 	evo=(SportsEvent *) malloc(i*sizeof(SportsEvent));
     fread(evo, sizeof(SportsEvent), i, fp);
     fclose(fp);
-	int o;Participant one;//新增参赛者
-	one.id=peoid;one.score=0;
+	int o;
 	for(int p=0;p<i;p++){
 		if(evo[p].id==eveid){
 			if(type==0){//第一轮
-				if(evo[p].maxpeople==0)return 3;
+				if(evo[p].maxpeople==0){free(evo);return 3;}
 				for(o = 0; o < 100; o++){//检查有没有参加
 					if(evo[p].prePerson[o].id==peoid){
-						evo[p].prePerson[o].id=0;//删除参赛
-						evo[p].prePerson[o].score=0;
-						fp = fopen("data\\eveinfo.txt", "w");
+						evo[p].prePerson[o].id=evo[p].prePerson[o].score=0;//删除参赛
 						evo[p].maxpeople--;
+						fp = fopen("data\\eveinfo.txt", "w");
+						
 						fwrite(evo, sizeof(SportsEvent), i, fp);
 						fclose(fp);
 						free(evo);
 						return 0;//已删除
 					}
 				}
-				;
 			}else{//决赛
-				if(evo[p].finNum==0)return 3;
+				if(evo[p].finNum==0){free(evo);return 3;}
 				for(o = 0; o < 20; o++){
 					if(evo[p].finPerson[o].id==peoid){
-						evo[p].finPerson[o].id=0;
-						evo[p].prePerson[o].score=0;
+						evo[p].finPerson[o].id=evo[p].finPerson[o].score=0;
 						evo[p].finNum--;
+						
 						fp = fopen("data\\eveinfo.txt", "w");
 						fwrite(evo, sizeof(SportsEvent), i, fp);
+						//printf("\n—%d—%ld—%d—\n",evo[p].maxpeople,evo[p].finPerson[o].id,evo[p].finNum);
 						fclose(fp);
 						free(evo);
 						return 0;//已删除
@@ -204,7 +217,6 @@ int Event_changescore(long eveid,long peoid,int type,long score){
 						return 0;//已删除
 					}
 				}
-				;
 			}else{//决赛
 				if(evo[p].finNum==0)return 3;
 				for(o = 0; o < 20; o++){

@@ -3,7 +3,7 @@
 void clearScreen(int sleepS)
 {
 	fflush(stdin);
-	Sleep(sleepS);
+	//Sleep(sleepS/100);
 	system("cls");
 }
 
@@ -21,6 +21,7 @@ int inputPasswd(char * password)
 		}
 		else
 		{
+			if(!length)continue;
 			putchar('\b');//这里是删除一个，我们通过输出回撤符 /b，回撤一格，
 			putchar(' ');//再显示空格符把刚才的*给盖住，
 			putchar('\b');//然后再 回撤一格等待录入。
